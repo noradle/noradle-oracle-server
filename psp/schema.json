@@ -1,0 +1,7 @@
+{
+  "schema" : "psp",
+  "install_script" : false,
+  "use_bom" : false,
+  "ignore" : [
+  ]
+}

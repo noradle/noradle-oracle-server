@@ -1,0 +1,26 @@
+{
+  "name": "noradle-oracle-server",
+  "version": "0.13.0",
+  "description": "core oracle schema objects for noradle, in oracle server side",
+  "main": "install.sql",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/noradle/noradle-oracle-server.git"
+  },
+  "keywords": [
+    "noradle",
+    "oracle",
+    "server",
+    "core",
+    "schema"
+  ],
+  "author": "kaven276@vip.sina.com",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/noradle/noradle-oracle-server/issues"
+  },
+  "homepage": "https://github.com/noradle/noradle-oracle-server"
+}

@@ -1,0 +1,15 @@
+----------------------------------------------------
+-- Export file for user PSP1                      --
+-- Created by Administrator on 2015-1-15, 9:10:20 --
+----------------------------------------------------
+
+set define off
+spool install_tmp.log
+
+prompt
+prompt Creating table SERVER_CONTROL_T
+prompt ===============================
+prompt
+@@server_control_t.tab
+
+spool off
