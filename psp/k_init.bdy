@@ -22,7 +22,7 @@ create or replace package body k_init is
 		if pv.protocol = 'HTTP' then
 			h.content_type;
 		else
-			h.content_type(h.mime_text, 'UTF-8');
+			h.content_type('text/resultsets', 'UTF-8');
 		end if;
 		h.content_encoding_auto;
 	end;
