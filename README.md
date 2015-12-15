@@ -180,8 +180,11 @@ reference:
 * [DBMS_NETWORK_ACL_ADMIN](http://oradoc.noradle.com/appdev.112/e10577/d_networkacl_adm.htm)
 * [Managing Fine-Grained Access in PL/SQL Network Utility Packages](http://oradoc.noradle.com/network.112/e10574/authorization.htm#DBSEG40012)
 
+configure, start, stop server processes
+========================================
+
 Configure `server_config_t` table for Noradle server processes
-==============================================================
+--------------------------------------------------------------
 
 After installation script runs, The `server_control_t` table is configured by the following insert statements.
 
@@ -214,7 +217,8 @@ For every records of `server_control_t`, call `dbms_network_acl_admin.assign_acl
 add `gw_port`), to allow oracle server process make connection to the corresponding dispatcher.
 
 
-## Make sure there is enough processes/sessions and background job process for PSP.WEB service.
+Make sure there is enough processes/sessions and background job process for PSP.WEB service.
+-----------------------------------------------------------------------------------------------
 
   The value in `server_control_t.min_servers` control how many server processes 
 a NORADLE dispatcher use it to service its clients, 
@@ -240,9 +244,7 @@ Note:
 * To change the setting., use "alter system set {parameter-name}={value}"
 	
 Start oracle server processes for noradle request
-=================================================
-
-## start OSPs
+---------------------------------------------------------
 
 Start and Stop NORADLE OSPs on oracle side
 
