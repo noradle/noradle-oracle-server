@@ -31,6 +31,7 @@ create or replace package r is
 
 	function call_type return varchar2;
 	function is_xhr return boolean;
+	function not_xhr return boolean;
 	function method return varchar2;
 	function protocol(use_proxy boolean := true) return varchar2;
 	function sdns(base_cnt pls_integer := 2) return varchar2;
@@ -44,6 +45,7 @@ create or replace package r is
 	function proc return varchar2;
 	function type return varchar2;
 	function is_readonly return boolean;
+	function is_readwrite return boolean;
 
 	function gid return varchar2;
 	function uid return varchar2;

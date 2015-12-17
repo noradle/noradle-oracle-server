@@ -361,6 +361,11 @@ create or replace package body r is
 		end case;
 	end;
 
+	function is_readwrite return boolean is
+	begin
+		return not is_readonly;
+	end;
+
 	/*
   
   function from_prog return varchar2 is
@@ -923,6 +928,11 @@ create or replace package body r is
 		else
 			return false;
 		end if;
+	end;
+
+	function not_xhr return boolean is
+	begin
+		return not is_xhr;
 	end;
 
 	function cid return varchar2 is
