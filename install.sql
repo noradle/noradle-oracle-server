@@ -64,7 +64,8 @@ exec k_pmon.stop
 rem @?/rdbms/admin/dbmshptab.sql
 @@dbmshptab.sql
 whenever sqlerror exit
-@@psp/install_psp_obj.sql
+@@psp/install.sql
+@@print/install.sql
 exec DBMS_UTILITY.COMPILE_SCHEMA(upper('&pspdbu'),false);
 @@contexts.sql
 @@grant_api.sql
