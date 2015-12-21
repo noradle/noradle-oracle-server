@@ -40,6 +40,7 @@ create or replace public synonym c for style;
 create or replace public synonym y for style;
 
 create or replace public synonym o for ztag;
+create or replace public synonym ztag for ztag;
 create or replace public synonym tag for tag;
 create or replace public synonym x for tag -- shortcut for xml/xhtml print;
 create or replace public synonym multi for multi;
