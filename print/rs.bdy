@@ -159,7 +159,7 @@ create or replace package body rs is
 
 	procedure use_remarks is
 	begin
-		pv.nlbr := (chr(30) || chr(10));
+		bdy.set_line_break(chr(30) || chr(10));
 	end;
 
 	procedure nv
