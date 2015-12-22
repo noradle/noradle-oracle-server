@@ -13,15 +13,23 @@ create or replace function url(lstr varchar2) return varchar2 is
 		if not r.is_lack('l$' || p_key) then
 			return r.getc('l$' || p_key);
 		end if;
-		select a.prefix
+		select min(a.prefix)
 			into v_prefix
 			from ext_url_t a
 		 where a.dbu = r.dbu
 			 and a.key = p_key;
-		return v_prefix;
-	exception
-		when no_data_found then
-			return 'http://' || p_key || '.' || r.dbu || '.no_data_found.ext_url_v.com/';
+		if v_prefix is not null then
+			return v_prefix;
+		end if;
+		select min(a.prefix)
+			into v_prefix
+			from ext_url_t a
+		 where a.dbu = lower(user)
+			 and a.key = p_key;
+		if v_prefix is not null then
+			return v_prefix;
+		end if;
+		return 'http://' || p_key || '.' || r.dbu || '.no_data_found.ext_url_v.com/';
 	end;
 
 	function base return varchar2 is
