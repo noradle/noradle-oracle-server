@@ -295,7 +295,21 @@ create or replace package body framework is
 		
 			-- this is for become user
 			v_done := false;
+			-- check if cid can access dbu
+			if not k_cfg.allow_cid_dbu then
+				h.status_line(500);
+				h.content_type('text/plan');
+				b.l('cid:' || r.cid || ' is not allowed to access dbu:' || r.dbu);
+				goto skip_main;
+			end if;
 			if substrb(r.getc('x$prog'), -2) in ('_t', '_v') then
+				-- check if cid can direct access table/view directly
+				if not k_cfg.allow_cid_sql then
+					h.status_line(500);
+					h.content_type('text/plan');
+					b.l('cid:' || r.cid || ' is not allowed to access table/view/sql directly!');
+					goto skip_main;
+				end if;
 				r.setc('x$prog', 'k_sql.get');
 			end if;
 			r."_after_map";
@@ -343,6 +357,7 @@ create or replace package body framework is
 					show_exception;
 			end;
 		
+			<<skip_main>>
 			output.finish;
 			bios.write_session;
 			bios.write_end;

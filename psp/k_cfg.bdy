@@ -15,5 +15,27 @@ create or replace package body k_cfg is
 		p_cfg := server_control(nvl(pv.cfg_id, 'default'));
 	end;
 
+	function client_control(p_cid varchar2) return client_control_t%rowtype result_cache relies_on(client_control_t) is
+		v client_control_t%rowtype;
+	begin
+		select a.* into v from client_control_t a where a.cid = p_cid;
+		return v;
+	exception
+		when no_data_found then
+			return v;
+	end;
+
+	function allow_cid_dbu return boolean is
+		v client_control_t%rowtype;
+	begin
+		v := client_control(r.cid);
+		return nvl(regexp_like(r.getc('x$dbu'), client_control(r.cid).dbu_filter), false);
+	end;
+
+	function allow_cid_sql return boolean is
+	begin
+		return nvl(client_control(r.cid).allow_sql = 'Y', false);
+	end;
+
 end k_cfg;
 /
