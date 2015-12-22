@@ -29,7 +29,7 @@ create or replace package body k_cfg is
 		v client_control_t%rowtype;
 	begin
 		v := client_control(r.cid);
-		return nvl(regexp_like(r.getc('x$dbu'), client_control(r.cid).dbu_filter), false);
+		return regexp_like(r.getc('x$dbu'), nvl(client_control(r.cid).dbu_filter, r.cid));
 	end;
 
 	function allow_cid_sql return boolean is
