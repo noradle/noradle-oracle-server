@@ -49,19 +49,18 @@ create or replace package body framework2 is
 		procedure make_conn is
 			v_sid  pls_integer;
 			v_seq  pls_integer;
-			v_inst pls_integer;
 			v_spid pls_integer;
-			v_all  varchar2(200);
-			v_raw4 raw(4);
-			v_mno  pls_integer := 197610261;
-			v_mnd  pls_integer := 197610262;
-			function env(n varchar2) return varchar2 is
+			procedure header(n varchar2) is
 			begin
-				return sys_context('USERENV', n);
+				pv.wlen := utl_tcp.write_line(pv.c, 'x-' || n || ': ' || sys_context('USERENV', n));
 			end;
-			procedure wpi(i binary_integer) is
+			procedure header
+			(
+				n varchar2,
+				v varchar2
+			) is
 			begin
-				pv.wlen := utl_tcp.write_raw(pv.c, utl_raw.cast_from_binary_integer(i));
+				pv.wlen := utl_tcp.write_line(pv.c, 'x-' || n || ': ' || v);
 			end;
 		begin
 			pv.c := utl_tcp.open_connection(v_cfg.gw_host,
@@ -75,24 +74,23 @@ create or replace package body framework2 is
 				from v$session s, v$process p
 			 where s.paddr = p.addr
 				 and s.sid = sys_context('userenv', 'sid');
-			v_inst := nvl(env('INSTANCE'), -1);
-			v_all  := env('DB_NAME') || '/' || env('DB_DOMAIN') || '/' || env('DB_UNIQUE_NAME') || '/' ||
-								env('DATABASE_ROLE') || '/' || pv.cfg_id;
-		
-			wpi(v_mno);
-			wpi(pv.in_seq * 256 * 256 + 0 * 256 + 0);
-			wpi(lengthb(v_all) + 4 * 6);
-			wpi(v_inst);
-			wpi(v_sid);
-			wpi(v_seq);
-			wpi(v_spid);
-			wpi(floor((sysdate - v_svr_stime) * 24 * 60));
-			wpi(v_svr_req_cnt);
-			-- wpi(nvl(v_cfg.idle_timeout, 0));
-			pv.wlen := utl_tcp.write_text(pv.c, v_all);
-			pv.wlen := utl_tcp.read_raw(pv.c, v_raw4, 4, false);
-			v_mnd   := utl_raw.cast_to_binary_integer(v_raw4);
-			dbms_output.put_line(v_mnd);
+			pv.wlen := utl_tcp.write_line(pv.c, 'GET / HTTP/1.1');
+			pv.wlen := utl_tcp.write_line(pv.c, 'upgrade: websocket');
+			pv.wlen := utl_tcp.write_line(pv.c, 'noradle-role: oracle');
+			header('db_name');
+			header('db_unique_name');
+			header('database_role');
+			header('instance');
+			header('db_domain');
+			header('cfg_id', pv.cfg_id);
+			header('oslot_id', pv.in_seq);
+			header('sid', v_sid);
+			header('serial', v_seq);
+			header('spid', v_spid);
+			header('age', floor((sysdate - v_svr_stime) * 24 * 60));
+			header('reqs', v_svr_req_cnt);
+			header('idle_timeout', nvl(v_cfg.idle_timeout, 0));
+			pv.wlen := utl_tcp.write_line(pv.c, '');
 		end;
 	
 		function got_quit_signal return boolean is
