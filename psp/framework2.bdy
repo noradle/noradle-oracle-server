@@ -50,6 +50,8 @@ create or replace package body framework2 is
 			v_sid  pls_integer;
 			v_seq  pls_integer;
 			v_spid pls_integer;
+			data   varchar2(1000);
+			status varchar2(1000);
 			procedure header(n varchar2) is
 			begin
 				pv.wlen := utl_tcp.write_line(pv.c, 'x-' || n || ': ' || sys_context('USERENV', n));
@@ -74,9 +76,11 @@ create or replace package body framework2 is
 				from v$session s, v$process p
 			 where s.paddr = p.addr
 				 and s.sid = sys_context('userenv', 'sid');
+		
+			-- write handshake request
 			pv.wlen := utl_tcp.write_line(pv.c, 'GET / HTTP/1.1');
 			pv.wlen := utl_tcp.write_line(pv.c, 'upgrade: websocket');
-			pv.wlen := utl_tcp.write_line(pv.c, 'noradle-role: oracle');
+			header('noradle-role', 'oracle');
 			header('db_name');
 			header('db_unique_name');
 			header('database_role');
@@ -91,6 +95,30 @@ create or replace package body framework2 is
 			header('reqs', v_svr_req_cnt);
 			header('idle_timeout', nvl(v_cfg.idle_timeout, 0));
 			pv.wlen := utl_tcp.write_line(pv.c, '');
+		
+			-- read handshake response
+			loop
+				begin
+					pv.wlen := utl_tcp.read_line(pv.c, data, true, false);
+					if status is null then
+						if data like 'HTTP/% 101 %' then
+							-- receive response ok
+							status := data;
+						else
+							raise utl_tcp.network_error;
+						end if;
+					elsif data is null then
+						-- end of http response header
+						return;
+					end if;
+				exception
+					when utl_tcp.transfer_timeout then
+						-- allow 3s for handshake response after handshake request write
+						raise utl_tcp.network_error;
+					when utl_tcp.end_of_input then
+						raise utl_tcp.network_error;
+				end;
+			end loop;
 		end;
 	
 		function got_quit_signal return boolean is
