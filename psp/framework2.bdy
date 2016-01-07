@@ -178,6 +178,7 @@ create or replace package body framework2 is
 		select count(*) into v_count from v$session a where a.client_info = v_clinfo;
 		if v_count > 0 then
 			dbms_output.put_line('Noradle Server Status:inuse. quit');
+			dbms_application_info.set_client_info('');
 			return;
 		end if;
 		dbms_application_info.set_client_info(v_clinfo);
@@ -399,6 +400,7 @@ create or replace package body framework2 is
 	
 	exception
 		when others then
+			dbms_application_info.set_client_info('');
 			-- all quit will go here, normal quit or exception, to allow sqlplus based OPS
 			close_conn;
 			utl_tcp.close_all_connections;
