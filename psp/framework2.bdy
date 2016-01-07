@@ -400,6 +400,7 @@ create or replace package body framework2 is
 	exception
 		when others then
 			-- all quit will go here, normal quit or exception, to allow sqlplus based OPS
+			close_conn;
 			utl_tcp.close_all_connections;
 			if v_sts = 0 then
 				dbms_output.put_line('Noradle Server Status:kill.');
