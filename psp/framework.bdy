@@ -1,4 +1,4 @@
-create or replace package body framework2 is
+create or replace package body framework is
 
 	/* main functions
   0. establish connection to nodejs and listen for request
@@ -414,5 +414,5 @@ create or replace package body framework2 is
 			end if;
 	end;
 
-end framework2;
+end framework;
 /
