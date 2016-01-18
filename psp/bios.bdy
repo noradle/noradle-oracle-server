@@ -101,13 +101,15 @@ create or replace package body bios is
 			ra.params(v_name) := v_st;
 		end loop;
 	
-		if pv.cslot_id > 0 then
-			-- noradle request have i$cid send without frame wrapper
-			v_value := utl_tcp.get_line(pv.c, true);
-			ra.params('b$cid') := st(v_value);
-			v_value := utl_tcp.get_line(pv.c, true);
-			ra.params('b$cslot') := st(v_value);
+		if pv.cslot_id = 0 then
+			return;
 		end if;
+	
+		-- noradle request have i$cid send without frame wrapper
+		v_value := utl_tcp.get_line(pv.c, true);
+		ra.params('b$cid') := st(v_value);
+		v_value := utl_tcp.get_line(pv.c, true);
+		ra.params('b$cslot') := st(v_value);
 	
 		loop
 			read_wrapper;
