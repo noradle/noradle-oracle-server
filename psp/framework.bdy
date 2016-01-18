@@ -25,6 +25,7 @@ create or replace package body framework is
 		v_count   pls_integer;
 		v_sts     number := -1;
 		v_return  integer;
+		v_res     varchar2(4000);
 	
 		v_svr_stime   date := sysdate;
 		v_svr_req_cnt pls_integer := 0;
@@ -120,6 +121,26 @@ create or replace package body framework is
 						raise utl_tcp.network_error;
 				end;
 			end loop;
+		end;
+	
+		procedure get_cli_cfg is
+			v_st st;
+			v    client_control_t%rowtype;
+		begin
+			v.cid := r.getc('m$cid');
+			select a.* into v from client_control_t a where a.cid = v.cid;
+			v_st  := st('cid',
+									v.cid,
+									'cseq',
+									r.getc('m$cseq'),
+									'min_concurrency',
+									nvl(v.min_concurrency, 0),
+									'max_concurrency',
+									nvl(v.max_concurrency, 0));
+			v_res := t.join(v_st, chr(0));
+		exception
+			when no_data_found then
+				null;
 		end;
 	
 		function got_quit_signal return boolean is
@@ -275,6 +296,10 @@ create or replace package body framework is
 						dbms_pipe.pack_message(r.getn('queue_len'));
 						dbms_pipe.pack_message(r.getn('oslot_cnt'));
 						v_return := dbms_pipe.send_message('Noradle-PMON');
+						continue;
+					when 'CLI_CFG' then
+						get_cli_cfg;
+						bios.write_frame(5, v_res);
 						continue;
 					else
 						continue;
