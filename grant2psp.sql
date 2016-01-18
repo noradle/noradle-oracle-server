@@ -1,5 +1,7 @@
 grant execute on SYS.PW to &pspdbu;
 grant read, write on directory SYS.PLSHPROF_DIR to &pspdbu;
+alter user &pspdbu default tablespace sysaux;
+alter user &pspdbu quota unlimited on sysaux;
 
 -- Grant/Revoke object privileges
 grant execute on SYS.DBMS_ALERT to &pspdbu;
