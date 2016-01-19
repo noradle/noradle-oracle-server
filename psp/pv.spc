@@ -11,6 +11,7 @@ create or replace package pv is
 	c          utl_tcp.connection; -- TCP/IP connection to the Web server
 
 	-- call level
+	disproto varchar2(30); -- NORADLE,SCGI,FCGI
 	protocol varchar2(30); -- call protocol (gateway.listen to branch req read and init)
 	hp_flag  boolean;
 	hp_label varchar2(2047); -- set to dbmshp run comment

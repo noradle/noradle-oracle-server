@@ -12,6 +12,36 @@ create or replace package body bios is
 		rb.nclob_entity := null;
 	end;
 
+	procedure read_nv is
+		v_name  varchar2(1000);
+		v_value varchar2(32000);
+		v_count pls_integer;
+		v_hprof varchar2(30);
+		v_st    st;
+	begin
+		pv.protocol := utl_tcp.get_line(pv.c, true);
+		v_hprof     := utl_tcp.get_line(pv.c, true);
+		pv.hp_flag  := v_hprof is not null;
+		--k_debug.trace(st('protocol/hprof', pv.protocol, t.tf(pv.hp_flag, 'true', 'false')), 'dispatcher');
+		loop
+			v_name  := trim(utl_tcp.get_line(pv.c, true));
+			v_value := utl_tcp.get_line(pv.c, true);
+			exit when v_name is null;
+			if v_name like '*%' then
+				v_name  := substrb(v_name, 2);
+				v_count := to_number(v_value);
+				v_st    := st();
+				v_st.extend(v_count);
+				for i in 1 .. v_count loop
+					v_st(i) := utl_tcp.get_line(pv.c, true);
+				end loop;
+			else
+				v_st := st(v_value);
+			end if;
+			ra.params(v_name) := v_st;
+		end loop;
+	end;
+
 	procedure getblob
 	(
 		p_len  in pls_integer,
@@ -57,11 +87,8 @@ create or replace package body bios is
 		v_type  raw(1);
 		v_flag  raw(1);
 		v_len   pls_integer;
-		v_name  varchar2(1000);
-		v_value varchar2(32000);
-		v_count pls_integer;
-		v_hprof varchar2(30);
 		v_st    st;
+		v_cbuf  varchar2(4000 byte);
 		procedure read_wrapper is
 		begin
 			v_bytes := utl_tcp.read_raw(pv.c, v_raw4, 4, false);
@@ -73,50 +100,46 @@ create or replace package body bios is
 			--k_debug.trace(st('read_wrapper', v_slot, v_type, v_flag, v_len), 'dispatcher');
 		end;
 	begin
-		read_wrapper;
-		k_debug.time_header_init;
-		pv.cslot_id := v_slot;
-		pv.protocol := utl_tcp.get_line(pv.c, true);
-		v_hprof     := utl_tcp.get_line(pv.c, true);
-		pv.hp_flag  := v_hprof is not null;
-		--k_debug.trace(st('protocol/hprof', pv.protocol, t.tf(pv.hp_flag, 'true', 'false')), 'dispatcher');
-	
 		ra.params.delete;
 		rc.params.delete;
-		loop
-			v_name  := trim(utl_tcp.get_line(pv.c, true));
-			v_value := utl_tcp.get_line(pv.c, true);
-			exit when v_name is null;
-			if v_name like '*%' then
-				v_name  := substrb(v_name, 2);
-				v_count := to_number(v_value);
-				v_st    := st();
-				v_st.extend(v_count);
-				for i in 1 .. v_count loop
-					v_st(i) := utl_tcp.get_line(pv.c, true);
-				end loop;
-			else
-				v_st := st(v_value);
-			end if;
-			ra.params(v_name) := v_st;
-		end loop;
+		read_wrapper;
+		pv.cslot_id := v_slot;
 	
-		if pv.cslot_id = 0 then
+		if v_slot = 0 then
+			-- it's management frame
+			read_nv;
 			return;
 		end if;
 	
-		-- noradle request have i$cid send without frame wrapper
-		v_value := utl_tcp.get_line(pv.c, true);
-		ra.params('b$cid') := st(v_value);
-		v_value := utl_tcp.get_line(pv.c, true);
-		ra.params('b$cslot') := st(v_value);
+		-- a request prefix header, protocol,cid,cSlotID,
+		k_debug.time_header_init;
+		v_bytes := utl_tcp.read_text(pv.c, v_cbuf, v_len, false);
+		--k_debug.trace(st('read prehead', v_len, v_bytes, v_cbuf));
+		t.split(v_st, v_cbuf, ',');
+		pv.disproto := v_st(1);
+		ra.params('b$protocol') := st(v_st(1));
+		ra.params('b$cid') := st(v_st(2));
+		ra.params('b$cslot') := st(v_st(3));
 	
-		loop
-			read_wrapper;
-			exit when v_len = 0;
-			--k_debug.trace(st('getblob', v_len), 'dispatcher');
-			getblob(v_len, rb.blob_entity);
-		end loop;
+		case pv.disproto
+			when 'NORADLE' then
+				-- read nv header
+				read_wrapper;
+				read_nv;
+				-- read body frames until met end frame
+				loop
+					read_wrapper;
+					exit when v_len = 0;
+					--k_debug.trace(st('getblob', v_len), 'dispatcher');
+					getblob(v_len, rb.blob_entity);
+				end loop;
+			when 'SCGI' then
+				null;
+			when 'FCGI' then
+				null;
+			else
+				null;
+		end case;
 	
 	end;
 
