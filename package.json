@@ -1,6 +1,6 @@
 {
   "name": "noradle-oracle-server",
-  "version": "0.14.1",
+  "version": "0.15.0",
   "description": "core oracle schema objects for noradle, in oracle server side",
   "main": "install.sql",
   "scripts": {
