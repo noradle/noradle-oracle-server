@@ -3,7 +3,7 @@ create or replace package bios is
 	-- Author  : ADMINISTRATOR
 	-- Created : 2015-5-11 11:28:55
 	-- Purpose : read request, write response
-	
+
 	procedure init_req_pv;
 
 	procedure read_request;
@@ -11,6 +11,12 @@ create or replace package bios is
 	procedure wpi(i binary_integer);
 
 	procedure write_frame(ftype pls_integer);
+
+	procedure write_frame
+	(
+		ftype pls_integer,
+		len   pls_integer
+	);
 
 	procedure write_frame
 	(

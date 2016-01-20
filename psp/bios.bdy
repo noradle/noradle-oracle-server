@@ -22,7 +22,7 @@ create or replace package body bios is
 		pv.protocol := utl_tcp.get_line(pv.c, true);
 		v_hprof     := utl_tcp.get_line(pv.c, true);
 		pv.hp_flag  := v_hprof is not null;
-		--k_debug.trace(st('protocol/hprof', pv.protocol, t.tf(pv.hp_flag, 'true', 'false')), 'dispatcher');
+		k_debug.trace(st('protocol/hprof', pv.protocol, t.tf(pv.hp_flag, 'true', 'false')), 'bios');
 		loop
 			v_name  := trim(utl_tcp.get_line(pv.c, true));
 			v_value := utl_tcp.get_line(pv.c, true);
@@ -97,7 +97,7 @@ create or replace package body bios is
 			v_flag  := utl_raw.substr(v_raw4, 4, 1);
 			v_bytes := utl_tcp.read_raw(pv.c, v_raw4, 4, false);
 			v_len   := utl_raw.cast_to_binary_integer(v_raw4);
-			--k_debug.trace(st('read_wrapper', v_slot, v_type, v_flag, v_len), 'dispatcher');
+			k_debug.trace(st('read_wrapper(slot,type,flag,len)', v_slot, v_type, v_flag, v_len), 'bios');
 		end;
 	begin
 		ra.params.delete;
@@ -114,7 +114,7 @@ create or replace package body bios is
 		-- a request prefix header, protocol,cid,cSlotID,
 		k_debug.time_header_init;
 		v_bytes := utl_tcp.read_text(pv.c, v_cbuf, v_len, false);
-		--k_debug.trace(st('read prehead', v_len, v_bytes, v_cbuf));
+		k_debug.trace(st('read prehead', v_len, v_bytes, v_cbuf), 'bios');
 		t.split(v_st, v_cbuf, ',');
 		pv.disproto := v_st(1);
 		ra.params('b$protocol') := st(v_st(1));
@@ -130,7 +130,7 @@ create or replace package body bios is
 				loop
 					read_wrapper;
 					exit when v_len = 0;
-					--k_debug.trace(st('getblob', v_len), 'dispatcher');
+					k_debug.trace(st('getblob', v_len), 'bios');
 					getblob(v_len, rb.blob_entity);
 				end loop;
 			when 'SCGI' then
@@ -150,8 +150,20 @@ create or replace package body bios is
 
 	procedure write_frame(ftype pls_integer) is
 	begin
+		k_debug.trace(st('write(ftype,len)', ftype, 0), 'bios');
 		wpi(pv.cslot_id * 256 * 256 + ftype * 256 + 0);
 		wpi(0);
+	end;
+
+	procedure write_frame
+	(
+		ftype pls_integer,
+		len   pls_integer
+	) is
+	begin
+		k_debug.trace(st('write(ftype,len)', ftype, len), 'bios');
+		wpi(pv.cslot_id * 256 * 256 + ftype * 256 + 0);
+		wpi(len);
 	end;
 
 	procedure write_frame
@@ -160,9 +172,10 @@ create or replace package body bios is
 		v     in out nocopy varchar2
 	) is
 	begin
-		wpi(pv.cslot_id * 256 * 256 + ftype * 256 + 0);
-		if v is not null then
-			wpi(lengthb(v));
+		if v is null then
+			write_frame(ftype);
+		else
+			write_frame(ftype, lengthb(v));
 			pv.wlen := utl_tcp.write_text(pv.c, v);
 		end if;
 		-- pv.wlen := utl_tcp.write_raw(pv.c, hextoraw(pv.bom));
@@ -170,8 +183,7 @@ create or replace package body bios is
 
 	procedure write_end is
 	begin
-		wpi(pv.cslot_id * 256 * 256 + 255 * 256 + 0);
-		wpi(0);
+		write_frame(255);
 	end;
 
 	procedure write_head is

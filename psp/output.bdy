@@ -74,8 +74,7 @@ create or replace package body output is
 			return;
 		end if;
 		if pv.entry is not null then
-			bios.wpi(pv.cslot_id * 256 * 256 + 1 * 256 + 0);
-			bios.wpi(p_len);
+			bios.write_frame(1, p_len);
 		end if;
 	
 		if pv.entry is null then
