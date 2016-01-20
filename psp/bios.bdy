@@ -218,6 +218,7 @@ create or replace package body bios is
 			v := v || pv.cookies(n) || nl;
 			n := pv.cookies.next(n);
 		end loop;
+		v := v || nl;
 		if pv.entry is null then
 			dbms_output.put_line(v);
 		else
