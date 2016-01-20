@@ -120,6 +120,8 @@ create or replace package body r is
 				get('a$uamd5', v_uamd5);
 			when 'DATA' then
 				null;
+			when 'SCGI' then
+				null;
 		end case;
 	
 		dbms_session.clear_identifier;

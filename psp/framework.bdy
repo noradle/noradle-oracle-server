@@ -320,6 +320,8 @@ create or replace package body framework is
 						http_server.serv;
 					when 'DATA' then
 						data_server.serv;
+					when 'SCGI' then
+						http_server.serv;
 					else
 						begin
 							execute immediate 'call ' || pv.protocol || '_server.serv()';

@@ -134,7 +134,7 @@ create or replace package body bios is
 					getblob(v_len, rb.blob_entity);
 				end loop;
 			when 'SCGI' then
-				null;
+				scgi.read_request;
 			when 'FCGI' then
 				null;
 			else
@@ -236,7 +236,9 @@ create or replace package body bios is
 			v := v || n || ': ' || t.join(rc.params(n), '~') || nl;
 			n := rc.params.next(n);
 		end loop;
-		write_frame(2, v);
+		if rc.params.first is not null then
+			write_frame(2, v);
+		end if;
 	end;
 
 end bios;

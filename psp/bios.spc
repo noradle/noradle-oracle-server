@@ -8,6 +8,12 @@ create or replace package bios is
 
 	procedure read_request;
 
+	procedure getblob
+	(
+		p_len  in pls_integer,
+		p_blob in out nocopy blob
+	);
+
 	procedure wpi(i binary_integer);
 
 	procedure write_frame(ftype pls_integer);
