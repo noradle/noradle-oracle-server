@@ -128,6 +128,10 @@ create or replace package body bios is
 	
 		<<actual>>
 	
+		if pv.disproto != 'NORADLE' then
+			pv.protocol := 'HTTP';
+		end if;
+	
 		case pv.disproto
 			when 'NORADLE' then
 				-- read nv header
