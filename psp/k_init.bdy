@@ -21,8 +21,10 @@ create or replace package body k_init is
 	
 		if pv.protocol = 'HTTP' then
 			h.content_type;
-		else
+		elsif pv.protocol in ('DATA', 'NDBC') then
 			h.content_type('text/resultsets', 'UTF-8');
+		else
+			h.content_type;
 		end if;
 		h.content_encoding_auto;
 	end;
