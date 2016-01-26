@@ -314,12 +314,14 @@ create or replace package body framework is
 			-- read & parse request info and do init work
 			pv.firstpg := true;
 			begin
-				case pv.protocol
-					when 'HTTP' then
-						-- as http, http2, fast-cgi, spdy
+				case pv.disproto
+					when 'NORADLE' then
+						-- as http, http2, fast-cgi, spdy throuth noradle protocol
 						http_server.serv;
-					when 'DATA' then
 						data_server.serv;
+					when 'HTTP' then
+						http_server.serv;
+						http.init;
 					when 'SCGI' then
 						http_server.serv;
 					else

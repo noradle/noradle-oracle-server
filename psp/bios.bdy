@@ -102,6 +102,11 @@ create or replace package body bios is
 	begin
 		ra.params.delete;
 		rc.params.delete;
+	
+		if false and pv.disproto = 'HTTP' then
+			goto actual;
+		end if;
+	
 		read_wrapper;
 		pv.cslot_id := v_slot;
 	
@@ -121,6 +126,8 @@ create or replace package body bios is
 		ra.params('b$cid') := st(v_st(2));
 		ra.params('b$cslot') := st(v_st(3));
 	
+		<<actual>>
+	
 		case pv.disproto
 			when 'NORADLE' then
 				-- read nv header
@@ -133,6 +140,8 @@ create or replace package body bios is
 					k_debug.trace(st('getblob', v_len), 'bios');
 					getblob(v_len, rb.blob_entity);
 				end loop;
+			when 'HTTP' then
+				http.read_request;
 			when 'SCGI' then
 				scgi.read_request;
 			when 'FCGI' then
