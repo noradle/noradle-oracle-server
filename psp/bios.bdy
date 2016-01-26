@@ -192,7 +192,7 @@ create or replace package body bios is
 		n  varchar2(30);
 		cc varchar2(100) := '';
 	begin
-		v := pv.status_code || nl || 'Date: ' || t.hdt2s(sysdate) || nl;
+		v := 'HTTP/1.1 ' || pv.status_code || nl || 'Date: ' || t.hdt2s(sysdate) || nl;
 		n := pv.headers.first;
 		while n is not null loop
 			v := v || n || ': ' || pv.headers(n) || nl;
