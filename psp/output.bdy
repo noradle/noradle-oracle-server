@@ -69,12 +69,21 @@ create or replace package body output is
 
 	-- private, called by .flush or .finish
 	procedure write_buf(p_len pls_integer) is
+		v_plen pls_integer := 0;
 	begin
 		if p_len = 0 then
 			return;
 		end if;
 		if pv.entry is not null then
-			bios.write_frame(1, p_len);
+			if pv.disproto = 'FCGI' then
+				v_plen := 8 - mod(p_len, 8);
+				if v_plen = 8 then
+					v_plen := 0;
+				else
+					line(rpad(' ', v_plen, ' '), null, 0);
+				end if;
+			end if;
+			bios.write_frame(1, p_len + v_plen, v_plen);
 		end if;
 	
 		if pv.entry is null then

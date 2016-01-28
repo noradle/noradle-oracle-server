@@ -171,11 +171,12 @@ create or replace package body bios is
 	procedure write_frame
 	(
 		ftype pls_integer,
-		len   pls_integer
+		len   pls_integer,
+		plen  pls_integer := 0
 	) is
 	begin
 		k_debug.trace(st('write(ftype,len)', ftype, len), 'bios');
-		wpi(pv.cslot_id * 256 * 256 + ftype * 256 + 0);
+		wpi(pv.cslot_id * 256 * 256 + ftype * 256 + plen);
 		wpi(len);
 	end;
 
@@ -184,11 +185,20 @@ create or replace package body bios is
 		ftype pls_integer,
 		v     in out nocopy varchar2
 	) is
+		v_plen pls_integer := 0;
 	begin
 		if v is null then
 			write_frame(ftype);
 		else
-			write_frame(ftype, lengthb(v));
+			if pv.disproto = 'FCGI' then
+				v_plen := 8 - mod(lengthb(v), 8);
+				if v_plen = 8 then
+					v_plen := 0;
+				else
+					v := v || rpad(' ', v_plen);
+				end if;
+			end if;
+			write_frame(ftype, lengthb(v), v_plen);
 			pv.wlen := utl_tcp.write_text(pv.c, v);
 		end if;
 		-- pv.wlen := utl_tcp.write_raw(pv.c, hextoraw(pv.bom));

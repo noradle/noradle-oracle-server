@@ -21,7 +21,8 @@ create or replace package bios is
 	procedure write_frame
 	(
 		ftype pls_integer,
-		len   pls_integer
+		len   pls_integer,
+		plen  pls_integer := 0
 	);
 
 	procedure write_frame
