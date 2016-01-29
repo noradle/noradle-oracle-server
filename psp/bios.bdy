@@ -119,7 +119,7 @@ create or replace package body bios is
 			when 'SCGI' then
 				scgi.read_request;
 			when 'FCGI' then
-				null;
+				fcgi.read_request;
 			else
 				null;
 		end case;
@@ -176,7 +176,13 @@ create or replace package body bios is
 
 	procedure write_end is
 	begin
-		write_frame(255);
+		if pv.disproto = 'FCGI' then
+			write_frame(255, 8, 0);
+			wpi(pv.status_code);
+			wpi(0);
+		else
+			write_frame(255);
+		end if;
 	end;
 
 	procedure write_head is
@@ -185,13 +191,16 @@ create or replace package body bios is
 		n  varchar2(30);
 		cc varchar2(100) := '';
 	begin
+		if pv.disproto = 'FCGI' then
+			pv.headers.delete('Content-Encoding');
+		end if;
 		v := 'HTTP/1.1 ' || pv.status_code || nl || 'Date: ' || t.hdt2s(sysdate) || nl;
 		n := pv.headers.first;
 		while n is not null loop
 			v := v || n || ': ' || pv.headers(n) || nl;
 			n := pv.headers.next(n);
 		end loop;
-
+	
 		n := pv.caches.first;
 		while n is not null loop
 			if pv.caches(n) = 'Y' then
@@ -204,13 +213,13 @@ create or replace package body bios is
 		if cc is not null then
 			v := v || 'Cache-Control: ' || substrb(cc, 3) || nl;
 		end if;
-
+	
 		n := pv.cookies.first;
 		while n is not null loop
 			v := v || 'Set-Cookie: ' || pv.cookies(n) || nl;
 			n := pv.cookies.next(n);
 		end loop;
-
+	
 		v := v || nl;
 		if pv.entry is null then
 			dbms_output.put_line(v);

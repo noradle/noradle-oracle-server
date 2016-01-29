@@ -324,6 +324,8 @@ create or replace package body framework is
 						http.init;
 					when 'SCGI' then
 						http_server.serv;
+					when 'FCGI' then
+						http_server.serv;
 					else
 						begin
 							execute immediate 'call ' || pv.protocol || '_server.serv()';
