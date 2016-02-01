@@ -118,6 +118,78 @@ create or replace package body fcgi is
 		end loop;
 		r.setc('x$dbu', 'demo1');
 		r.setc('x$prog', 'basic_io_b.req_info');
+	
+		-- further parse params
+		-- u$url http://hostname:port/dir/prog?query
+		-- utl_url.unescape(get('u$url'), pv.cs_req);
+		declare
+			v_url  varchar2(4000) := r.getc('u$url');
+			b_host pls_integer := instrb(v_url, '//');
+			b_path pls_integer := instrb(v_url, '/', b_host + 1);
+			b_prog pls_integer := instrb(v_url, '/', -1);
+			b_dbu  pls_integer := instrb(v_url, '/', -1, 2);
+			b_qstr pls_integer := instrb(v_url, '?', b_path + 1);
+			v_qstr varchar2(4000);
+			v_host varchar2(200);
+			b_port pls_integer;
+			b_ver  pls_integer;
+			v_prv  varchar2(30);
+			v_addr varchar2(30) := r.getc('a$saddr');
+		begin
+		
+			v_prv := lower(r.getc('u$protov'));
+			if v_prv is not null then
+				b_ver := instrb(v_prv, '/');
+				if b_ver > 0 then
+					r.setc('u$proto', substrb(v_prv, 1, b_ver - 1));
+				else
+					r.setc('u$proto', v_prv);
+				end if;
+			else
+				r.setc('u$proto', 'ndbc');
+			end if;
+		
+			if r.is_null('h$host') then
+				v_host := substrb(v_url, b_host + 2, b_path - b_host - 2);
+			else
+				v_host := r.getc('h$host');
+			end if;
+			r.setc('u$host', v_host);
+			b_port := instrb(v_host, ':');
+			if b_port = 0 then
+				r.setc('u$hostname', v_host);
+			else
+				r.setc('u$hostname', substrb(v_host, 1, b_port - 1));
+				r.setc('u$port', substrb(v_host, b_port + 1));
+			end if;
+		
+			r.setc('u$dir', substrb(v_url, b_path, b_prog - b_path + 1));
+			if r.is_null('x$dbu') then
+				r.setc('x$dbu', substrb(v_url, b_dbu + 1, b_prog - b_dbu - 1));
+			end if;
+			if b_qstr = 0 then
+				r.setc('u$pathname', substrb(v_url, b_path));
+				r.setc('u$search', '');
+				r.setc('x$prog', substrb(v_url, b_prog + 1));
+				v_qstr := '';
+			else
+				r.setc('u$pathname', substrb(v_url, b_path, b_qstr - b_path));
+				r.setc('u$search', substrb(v_url, b_qstr));
+				r.setc('x$prog', substrb(v_url, b_prog + 1, b_qstr - b_prog - 1));
+				v_qstr := substrb(v_url, b_qstr + 1);
+			end if;
+			r.setc('u$qstr', v_qstr);
+		
+			-- address
+			if v_addr like '%.%.%.%' then
+				r.setc('a$sfami', 'IPv4');
+			elsif instrb(v_addr, '/') > 0 then
+				r.setc('a$sfami', 'PIPE');
+			else
+				r.setc('a$sfami', 'IPv6');
+			end if;
+		end;
+	
 		k_debug.trace(st('read request complete'), 'FCGI');
 	end;
 
