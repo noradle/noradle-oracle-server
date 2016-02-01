@@ -14,7 +14,7 @@ create or replace package body fcgi is
 		v_rbuf    raw(32767);
 		v_params  varchar2(32767 byte);
 	
-		procedure read_wrapper is
+		procedure read_header is
 		begin
 			/*
       typedef struct {
@@ -83,7 +83,7 @@ create or replace package body fcgi is
 	begin
 		k_debug.trace(st('read request begin'), 'FCGI');
 		loop
-			read_wrapper;
+			read_header;
 			case v_type
 				when 1 then
 					-- FCGI_BEGIN_REQUEST
