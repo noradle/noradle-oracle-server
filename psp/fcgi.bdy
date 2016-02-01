@@ -69,6 +69,9 @@ create or replace package body fcgi is
 				n := substrb(v_params, pos, nlen);
 				v := substrb(v_params, pos + nlen, vlen);
 				k_debug.trace(st('nv', n, v), 'FCGI');
+				if n like 'HTTP%' then
+					n := 'h$' || lower(substrb(n, 6));
+				end if;
 				ra.params(n) := st(v);
 				pos := pos + nlen + vlen;
 				if pos > maxl then
