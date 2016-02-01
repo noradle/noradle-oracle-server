@@ -139,8 +139,6 @@ create or replace package body fcgi is
 					end if;
 			end case;
 		end loop;
-		r.setc('x$dbu', 'demo1');
-		r.setc('x$prog', 'basic_io_b.req_info');
 	
 		-- further parse params
 		-- u$url http://hostname:port/dir/prog?query
