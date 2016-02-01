@@ -80,8 +80,28 @@ create or replace package body fcgi is
 			end loop;
 		end;
 	
+		procedure init_request_body is
+			v_pos pls_integer;
+		begin
+			rb.charset_http := null;
+			rb.charset_db   := null;
+			rb.blob_entity  := null;
+			rb.clob_entity  := null;
+			rb.nclob_entity := null;
+		
+			v_pos           := instrb(r.header('content-type'), '=');
+			rb.charset_http := t.tf(v_pos > 0, trim(substr(r.header('content-type'), v_pos + 1)), 'UTF-8');
+			rb.charset_db   := utl_i18n.map_charset(rb.charset_http, utl_i18n.generic_context, utl_i18n.iana_to_oracle);
+			v_pos           := instrb(r.header('content-type') || ';', ';');
+			rb.mime_type    := substrb(r.header('content-type'), 1, v_pos - 1);
+			rb.length       := r.getn('h$content-length');
+		
+			dbms_lob.createtemporary(rb.blob_entity, cache => true, dur => dbms_lob.call);
+		end;
+	
 	begin
 		k_debug.trace(st('read request begin'), 'FCGI');
+		rb.length := null;
 		loop
 			read_header;
 			case v_type
@@ -109,11 +129,14 @@ create or replace package body fcgi is
 					-- FCGI_STDIN
 					k_debug.trace(st('read FCGI_STDIN', v_blen), 'FCGI');
 					if v_blen > 0 then
+						if rb.length is null then
+							init_request_body;
+						end if;
 						v_bytes := utl_tcp.read_raw(pv.c, v_rbuf, v_blen, false);
+						dbms_lob.writeappend(rb.blob_entity, v_clen, v_rbuf);
 					else
 						exit;
 					end if;
-					-- read data into lob
 			end case;
 		end loop;
 		r.setc('x$dbu', 'demo1');
