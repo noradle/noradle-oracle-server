@@ -144,6 +144,30 @@ create or replace package body bios is
 		end loop;
 	end;
 
+	procedure parse_cookie is
+		nvs st;
+		n   varchar2(64);
+		v   varchar2(4000);
+	begin
+		if r.is_null('h$cookie') then
+			return;
+		end if;
+		t.split(nvs, r.header('cookie'), ';', false);
+		for i in 1 .. nvs.count loop
+			t.half(nvs(i), n, v, '=');
+			if n is null then
+				continue;
+			end if;
+			n := 'c$' || trim(n);
+			if not ra.params.exists(n) then
+				ra.params(n) := st(trim(v));
+			else
+				ra.params(n).extend(1);
+				ra.params(n)(ra.params(n).count) := trim(v);
+			end if;
+		end loop;
+	end;
+
 	/**
   for request header frame
   v_type(int8) must be 0 (head frame)

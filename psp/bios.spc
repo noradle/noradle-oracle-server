@@ -15,8 +15,8 @@ create or replace package bios is
 	);
 
 	procedure parse_head;
-
 	procedure parse_query;
+	procedure parse_cookie;
 
 	procedure wpi(i binary_integer);
 

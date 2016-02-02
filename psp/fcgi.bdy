@@ -142,6 +142,7 @@ create or replace package body fcgi is
 	
 		bios.parse_head;
 		bios.parse_query;
+		bios.parse_cookie;
 	
 		k_debug.trace(st('read request complete'), 'FCGI');
 	end;
