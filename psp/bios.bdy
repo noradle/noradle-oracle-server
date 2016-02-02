@@ -293,7 +293,7 @@ create or replace package body bios is
 		if pv.disproto = 'FCGI' then
 			pv.headers.delete('Content-Encoding');
 		end if;
-		v := 'HTTP/1.1 ' || pv.status_code || nl || 'Date: ' || t.hdt2s(sysdate) || nl;
+		v := r.getc('u$protov', 'HTTP/1.1') || ' ' || pv.status_code || nl || 'Date: ' || t.hdt2s(sysdate) || nl;
 		n := pv.headers.first;
 		while n is not null loop
 			v := v || n || ': ' || pv.headers(n) || nl;
