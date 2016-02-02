@@ -290,21 +290,19 @@ create or replace package body framework is
 						v_maxwcnt := floor(r.getn('keepAliveInterval', 60) + 3 / v_timeout);
 						k_debug.trace(st(v_clinfo, 'signaled KEEPALIVE', v_maxwcnt), 'dispatcher');
 						v_count := 0;
-						continue;
 					when 'ASK_OSP' then
 						dbms_pipe.pack_message('ASK_OSP');
 						dbms_pipe.pack_message(pv.cfg_id);
 						dbms_pipe.pack_message(r.getn('queue_len'));
 						dbms_pipe.pack_message(r.getn('oslot_cnt'));
 						v_return := dbms_pipe.send_message('Noradle-PMON');
-						continue;
 					when 'CLI_CFG' then
 						get_cli_cfg;
 						bios.write_frame(5, v_res);
-						continue;
 					else
-						continue;
+						null;
 				end case;
+				continue;
 			end if;
 		
 			if pv.hp_flag then
