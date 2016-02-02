@@ -34,6 +34,7 @@ create or replace package r is
 	function not_xhr return boolean;
 	function method return varchar2;
 	function protocol(use_proxy boolean := true) return varchar2;
+	function protov return varchar2;
 	function sdns(base_cnt pls_integer := 2) return varchar2;
 	function pdns(base_cnt pls_integer := 2) return varchar2;
 	function hostname return varchar2;

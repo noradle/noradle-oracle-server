@@ -231,6 +231,11 @@ create or replace package body r is
 		end if;
 	end;
 
+	function protov return varchar2 is
+	begin
+		return get('u$protov');
+	end;
+
 	function pdns(base_cnt pls_integer := 2) return varchar2 is
 		v_dns varchar2(100) := r.getc('u$hostname');
 		v_pos pls_integer := instrb(v_dns, '.', -1, base_cnt);
@@ -260,6 +265,7 @@ create or replace package body r is
 
 	function host return varchar2 is
 	begin
+		return get('u$host');
 		if is_null('h$host') then
 			if port = 80 then
 				return hostname;
@@ -318,11 +324,7 @@ create or replace package body r is
 
 	function search return varchar2 is
 	begin
-		if is_null('u$qstr') then
-			return '';
-		else
-			return '?' || qstr;
-		end if;
+		return utl_url.unescape(get('u$search'), pv.cs_req);
 	end;
 
 	function qstr return varchar2 is
