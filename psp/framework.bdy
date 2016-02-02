@@ -81,6 +81,7 @@ create or replace package body framework is
 			-- write handshake request
 			pv.wlen := utl_tcp.write_line(pv.c, 'GET / HTTP/1.1');
 			pv.wlen := utl_tcp.write_line(pv.c, 'host: ' || v_cfg.gw_host || ':' || v_cfg.gw_port);
+			pv.wlen := utl_tcp.write_line(pv.c, 'connection: upgrade');
 			pv.wlen := utl_tcp.write_line(pv.c, 'upgrade: websocket');
 			header('noradle-role', 'oracle');
 			header('db_name');
