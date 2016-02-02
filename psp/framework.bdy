@@ -316,8 +316,13 @@ create or replace package body framework is
 				case pv.disproto
 					when 'NORADLE' then
 						-- as http, http2, fast-cgi, spdy throuth noradle protocol
-						http_server.serv;
-						data_server.serv;
+						if pv.protocol = 'HTTP' then
+							http_server.serv;
+						elsif pv.protocol in ('DATA', 'NDBC') then
+							data_server.serv;
+						else
+							data_server.serv;
+						end if;
 					when 'HTTP' then
 						http_server.serv;
 						http.init;
