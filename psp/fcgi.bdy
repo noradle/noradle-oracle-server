@@ -74,6 +74,29 @@ create or replace package body fcgi is
 		end;
 	end parse_head;
 
+	procedure parse_query is
+		v_qry varchar2(32767) := r.qstr;
+		v_nvs st;
+		n     varchar2(4000);
+		v     varchar2(4000);
+	begin
+		if r.method = 'POST' and rb.mime_type = 'application/x-www-form-urlencoded' then
+			r.body2clob;
+			v_qry := rb.clob_entity || '&' || v_qry;
+		end if;
+		t.split(v_nvs, v_qry, '&', false);
+		for i in 1 .. v_nvs.count loop
+			t.half(v_nvs(i), n, v, '=');
+			n := trim(n);
+			if not ra.params.exists(n) then
+				ra.params(n) := st(trim(v));
+			else
+				ra.params(n).extend(1);
+				ra.params(n)(ra.params(n).count) := v;
+			end if;
+		end loop;
+	end;
+
 	procedure read_request is
 		v_bytes   pls_integer;
 		v_raw8    raw(8);
@@ -215,6 +238,7 @@ create or replace package body fcgi is
 		end loop;
 	
 		parse_head;
+		parse_query;
 	
 		k_debug.trace(st('read request complete'), 'FCGI');
 	end;
