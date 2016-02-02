@@ -17,7 +17,8 @@ create or replace package k_type_tool is
 	(
 		p_str   varchar2 character set any_cs,
 		p_left  in out nocopy varchar2 character set p_str%charset,
-		p_right in out nocopy varchar2 character set p_str%charset
+		p_right in out nocopy varchar2 character set p_str%charset,
+		sep     varchar2 := ','
 	);
 
 	function left

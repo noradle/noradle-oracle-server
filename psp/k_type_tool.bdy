@@ -37,11 +37,12 @@ create or replace package body k_type_tool is
 	(
 		p_str   varchar2 character set any_cs,
 		p_left  in out nocopy varchar2 character set p_str%charset,
-		p_right in out nocopy varchar2 character set p_str%charset
+		p_right in out nocopy varchar2 character set p_str%charset,
+		sep     varchar2 := ','
 	) is
 		v_pos pls_integer;
 	begin
-		v_pos := instr(p_str, ',');
+		v_pos := instr(p_str, sep);
 		if v_pos > 0 then
 			p_left  := substr(p_str, 1, v_pos - 1);
 			p_right := substr(p_str, v_pos + 1);
