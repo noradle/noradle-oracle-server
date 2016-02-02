@@ -356,6 +356,12 @@ create or replace package body framework is
 			-- do all pv init beforehand, next call to page init will not be first page
 			k_mapping.set;
 		
+			if r.is_null('x$dbu') or r.is_null('x$prog') then
+				h.status_line(404);
+				k_debug.req_info;
+				goto skip_main;
+			end if;
+		
 			-- this is for become user
 			v_done := false;
 			-- check if cid can access dbu
