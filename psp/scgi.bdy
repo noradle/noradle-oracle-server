@@ -17,7 +17,9 @@ create or replace package body scgi is
 		k_debug.trace(st('start_pos,head_len', v_start_pos, v_head_len), 'SCGI');
 		v_buf := utl_tcp.get_text(pv.c, v_start_pos + 1, false);
 		v_buf := utl_tcp.get_text(pv.c, v_head_len, false);
-		t.split(v_nv_arr, v_buf, chr(0), false);
+	
+		v_buf := translate(v_buf, chr(0), chr(30));
+		t.split(v_nv_arr, v_buf, chr(30), false);
 		loop
 			v_buf := v_nv_arr(i);
 			exit when v_buf = ',';
