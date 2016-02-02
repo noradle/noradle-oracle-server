@@ -23,6 +23,9 @@ create or replace package body scgi is
 		loop
 			v_buf := v_nv_arr(i);
 			exit when v_buf = ',';
+			if v_buf like 'HTTP_%' then
+				v_buf := 'h$' || replace(lower(substrb(v_buf, 6)), '_', '-');
+			end if;
 			ra.params(v_buf) := st(v_nv_arr(i + 1));
 			i := i + 2;
 		end loop;
