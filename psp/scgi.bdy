@@ -40,12 +40,9 @@ create or replace package body scgi is
 		end if;
 		k_debug.trace(st('read complete'), 'SCGI');
 	
-		-- mapping
-		pv.protocol := 'SCGI';
-		r.setc('x$dbu', lower(user));
-		r.setc('x$prog', 'scgi_b');
-		r.setc('x$dbu', 'demo1');
-		r.setc('x$prog', 'basic_io_b.req_info');
+		bios.parse_head;
+		bios.parse_query;
+		bios.parse_cookie;
 	end;
 
 end scgi;
