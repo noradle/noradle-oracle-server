@@ -55,9 +55,6 @@ create or replace package body bios is
 			b_host pls_integer := instrb(v_url, '//');
 			b_path pls_integer := instrb(v_url, '/', b_host + 1);
 			b_qstr pls_integer := instrb(v_url, '?', b_path + 1);
-			b_prog pls_integer := instrb(v_url, '/', b_qstr - lengthb(v_url) - 2);
-			b_dbu  pls_integer := instrb(v_url, '/', b_prog - lengthb(v_url) - 2);
-			v_qstr varchar2(4000);
 			v_host varchar2(200);
 			b_port pls_integer;
 			b_ver  pls_integer;
@@ -91,22 +88,15 @@ create or replace package body bios is
 				r.setc('u$port', substrb(v_host, b_port + 1));
 			end if;
 		
-			r.setc('u$dir', substrb(v_url, b_path, b_prog - b_path + 1));
-			if r.is_null('x$dbu') then
-				r.setc('x$dbu', substrb(v_url, b_dbu + 1, b_prog - b_dbu - 1));
-			end if;
 			if b_qstr = 0 then
 				r.setc('u$pathname', substrb(v_url, b_path));
 				r.setc('u$search', '');
-				r.setc('x$prog', substrb(v_url, b_prog + 1));
-				v_qstr := '';
+				r.setc('u$qstr', '');
 			else
 				r.setc('u$pathname', substrb(v_url, b_path, b_qstr - b_path));
 				r.setc('u$search', substrb(v_url, b_qstr));
-				r.setc('x$prog', substrb(v_url, b_prog + 1, b_qstr - b_prog - 1));
-				v_qstr := substrb(v_url, b_qstr + 1);
+				r.setc('u$qstr', substrb(v_url, b_qstr + 1));
 			end if;
-			r.setc('u$qstr', v_qstr);
 		
 			-- address
 			if v_addr like '%.%.%.%' then
