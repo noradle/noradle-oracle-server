@@ -14,10 +14,6 @@ create or replace package bios is
 		p_blob in out nocopy blob
 	);
 
-	procedure parse_head;
-	procedure parse_query;
-	procedure parse_cookie;
-
 	procedure wpi(i binary_integer);
 
 	procedure write_frame(ftype pls_integer);
