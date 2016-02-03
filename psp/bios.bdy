@@ -125,6 +125,9 @@ create or replace package body bios is
 		n     varchar2(4000);
 		v     varchar2(4000);
 	begin
+		if instrb(v_qry, '=') = 0 then
+			v_qry := '';
+		end if;
 		if r.method = 'POST' and rb.mime_type = 'application/x-www-form-urlencoded' then
 			r.body2clob;
 			v_qry := rb.clob_entity || '&' || v_qry;
