@@ -60,29 +60,11 @@ create or replace package body r is
 		c        in out nocopy utl_tcp.connection,
 		passport pls_integer
 	) is
-		v_name  varchar2(1000);
-		v_value varchar2(32000);
-		v_count pls_integer;
-		v_st    st;
 		v_uamd5 varchar2(22);
 	begin
 		if passport != 80526 then
 			raise_application_error(-20000, 'can not call psp.web''s internal method');
 		end if;
-	
-		declare
-			pos pls_integer;
-		begin
-			get('x$prog', v_prog);
-			pos := instrb(v_prog, '.');
-			if pos >= 1 then
-				setc('x$pack', substrb(v_prog, 1, pos - 1));
-				setc('x$proc', substrb(v_prog, pos + 1));
-			else
-				setc('x$pack', '');
-				setc('x$proc', v_prog);
-			end if;
-		end;
 	
 		-- basic input
 		case pv.protocol
