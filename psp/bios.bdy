@@ -54,9 +54,9 @@ create or replace package body bios is
 			v_url  varchar2(4000) := r.getc('u$url');
 			b_host pls_integer := instrb(v_url, '//');
 			b_path pls_integer := instrb(v_url, '/', b_host + 1);
-			b_prog pls_integer := instrb(v_url, '/', -1);
-			b_dbu  pls_integer := instrb(v_url, '/', -1, 2);
 			b_qstr pls_integer := instrb(v_url, '?', b_path + 1);
+			b_prog pls_integer := instrb(v_url, '/', b_qstr - lengthb(v_url) - 2);
+			b_dbu  pls_integer := instrb(v_url, '/', b_prog - lengthb(v_url) - 2);
 			v_qstr varchar2(4000);
 			v_host varchar2(200);
 			b_port pls_integer;
