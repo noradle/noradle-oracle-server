@@ -6,8 +6,6 @@ create or replace package body r is
 	v_pack varchar2(30);
 	v_proc varchar2(30);
 	v_type char(1);
-	v_user varchar2(30);
-	v_pass varchar2(30);
 
 	gv_dbu  varchar2(30);
 	gv_file varchar2(1000);
@@ -42,32 +40,6 @@ create or replace package body r is
 	exception
 		when no_data_found then
 			value := defval;
-	end;
-
-	-- Refactored procedure extract_user_pass 
-	procedure extract_user_pass is
-		v_credential varchar2(100);
-		v_parts      st;
-	begin
-		get('h$authorization', v_credential);
-		if v_credential is null then
-			v_user := null;
-			v_pass := null;
-		else
-			t.split(v_parts, v_credential, ' ');
-			case v_parts(1)
-				when 'Basic' then
-					t.split(v_parts, utl_encode.text_decode(v_parts(2), encoding => utl_encode.base64), ':');
-					v_user := v_parts(1);
-					v_pass := v_parts(2);
-				when 'Digest' then
-					null;
-			end case;
-		end if;
-	exception
-		when no_data_found then
-			v_user := null;
-			v_pass := null;
 	end;
 
 	procedure "_after_map" is
@@ -125,11 +97,6 @@ create or replace package body r is
 		end case;
 	
 		dbms_session.clear_identifier;
-	
-		-- credentials
-		if pv.protocol = 'HTTP' then
-			extract_user_pass;
-		end if;
 	end;
 
 	procedure body2clob is
@@ -793,12 +760,12 @@ create or replace package body r is
 
 	function user return varchar2 is
 	begin
-		return v_user;
+		return r.getc('i$user');
 	end;
 
 	function pass return varchar2 is
 	begin
-		return v_pass;
+		return r.getc('i$pass');
 	end;
 
 	function gid return varchar2 is
