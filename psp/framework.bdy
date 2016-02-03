@@ -267,6 +267,10 @@ create or replace package body framework is
 				bios.read_request;
 				pv.headers.delete;
 				k_debug.time_header('after-read');
+				k_parser.parse_head;
+				k_parser.parse_query;
+				k_parser.parse_cookie;
+				k_parser.parse_auth;
 			exception
 				when utl_tcp.transfer_timeout then
 					if v_count > v_maxwcnt then
@@ -380,6 +384,8 @@ create or replace package body framework is
 					goto skip_main;
 				end if;
 				r.setc('x$prog', 'k_sql.get');
+			else
+				k_parser.parse_prog;
 			end if;
 			r."_after_map";
 			dbms_application_info.set_module(r.dbu || '.' || nvl(r.pack, r.proc), t.tf(r.pack is null, 'standalone', r.proc));

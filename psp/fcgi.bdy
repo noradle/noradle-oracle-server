@@ -138,12 +138,7 @@ create or replace package body fcgi is
 						exit;
 					end if;
 			end case;
-		end loop;
-	
-		bios.parse_head;
-		bios.parse_query;
-		bios.parse_cookie;
-	
+		end loop;	
 		k_debug.trace(st('read request complete'), 'FCGI');
 	end;
 

@@ -39,10 +39,6 @@ create or replace package body scgi is
 			bios.getblob(v_body_len, rb.blob_entity);
 		end if;
 		k_debug.trace(st('read complete'), 'SCGI');
-	
-		bios.parse_head;
-		bios.parse_query;
-		bios.parse_cookie;
 	end;
 
 end scgi;
