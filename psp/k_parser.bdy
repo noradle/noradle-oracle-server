@@ -14,6 +14,8 @@ create or replace package body k_parser is
 			b_port pls_integer;
 			b_ver  pls_integer;
 			v_prv  varchar2(30);
+			v_path varchar2(4000);
+			v_sect st;
 			v_addr varchar2(30) := r.getc('a$saddr');
 		begin
 		
@@ -44,14 +46,17 @@ create or replace package body k_parser is
 			end if;
 		
 			if b_qstr = 0 then
-				r.setc('u$pathname', substrb(v_url, b_path));
+				v_path := substrb(v_url, b_path);
 				r.setc('u$search', '');
 				r.setc('u$qstr', '');
 			else
-				r.setc('u$pathname', substrb(v_url, b_path, b_qstr - b_path));
+				v_path := substrb(v_url, b_path, b_qstr - b_path);
 				r.setc('u$search', substrb(v_url, b_qstr));
 				r.setc('u$qstr', substrb(v_url, b_qstr + 1));
 			end if;
+			t.split(v_sect, substrb(v_path, 2), '/', false);
+			ra.params('u$pathname') := st(v_path);
+			ra.params('u$sect') := v_sect;
 		
 			-- address
 			if v_addr like '%.%.%.%' then
