@@ -267,10 +267,6 @@ create or replace package body framework is
 				bios.read_request;
 				pv.headers.delete;
 				k_debug.time_header('after-read');
-				k_parser.parse_head;
-				k_parser.parse_query;
-				k_parser.parse_cookie;
-				k_parser.parse_auth;
 			exception
 				when utl_tcp.transfer_timeout then
 					if v_count > v_maxwcnt then
@@ -317,6 +313,11 @@ create or replace package body framework is
 			-- read & parse request info and do init work
 			pv.firstpg := true;
 			begin
+				-- further parse from env
+				k_parser.parse_head;
+				k_parser.parse_query;
+				k_parser.parse_cookie;
+				k_parser.parse_auth;
 				case pv.disproto
 					when 'NORADLE' then
 						-- as http, http2, fast-cgi, spdy throuth noradle protocol
