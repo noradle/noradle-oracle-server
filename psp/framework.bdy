@@ -451,6 +451,12 @@ create or replace package body framework is
 				tmp.n := dbms_hprof.analyze('PLSHPROF_DIR', v_clinfo || '.trc', run_comment => tmp.s);
 			end if;
 		
+			if pv.disproto = 'HTTP' and h.header('Connection') = 'close' then
+				close_conn;
+				k_debug.trace('close connection', 'header');
+				goto make_connection;
+			end if;
+		
 		end loop;
 	
 	exception

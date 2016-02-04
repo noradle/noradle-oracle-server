@@ -47,6 +47,14 @@ create or replace package body http is
 
 	procedure init is
 	begin
+		case r.header('Connection')
+			when 'close' then
+				h.header('Connection', 'close');
+			when 'keep-alive' then
+				h.header('Connection', 'keep-alive');
+			else
+				h.header('Connection', 'close');
+		end case;
 	end;
 
 end http;
