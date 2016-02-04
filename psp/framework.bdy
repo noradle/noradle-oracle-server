@@ -357,39 +357,45 @@ create or replace package body framework is
 													 dbms_utility.format_error_backtrace));
 					do_quit;
 			end;
+		
 			pv.firstpg := false;
 			-- do all pv init beforehand, next call to page init will not be first page
-			k_mapping.set;
 		
-			if r.is_null('x$dbu') or r.is_null('x$prog') then
-				h.status_line(404);
-				k_debug.req_info;
-				goto skip_main;
-			end if;
-		
-			-- this is for become user
-			v_done := false;
-			-- check if cid can access dbu
-			if not k_cfg.allow_cid_dbu then
-				h.status_line(500);
-				h.content_type('text/plan');
-				b.l('cid:' || r.cid || ' is not allowed to access dbu:' || r.dbu);
-				goto skip_main;
-			end if;
-			if substrb(r.getc('x$prog'), -2) in ('_t', '_v') then
-				-- check if cid can direct access table/view directly
-				if not k_cfg.allow_cid_sql then
-					h.status_line(500);
-					h.content_type('text/plan');
-					b.l('cid:' || r.cid || ' is not allowed to access table/view/sql directly!');
+			-- map requested url to target servlet as x$dbu.x$prog form
+			begin
+				k_mapping.set;
+			
+				if r.is_null('x$dbu') or r.is_null('x$prog') then
+					h.status_line(404);
+					k_debug.req_info;
 					goto skip_main;
 				end if;
-				r.setc('x$prog', 'k_sql.get');
-			else
-				k_parser.parse_prog;
-			end if;
-			r."_after_map";
-			dbms_application_info.set_module(r.dbu || '.' || nvl(r.pack, r.proc), t.tf(r.pack is null, 'standalone', r.proc));
+			
+				-- this is for become user
+				v_done := false;
+				-- check if cid can access dbu
+				if not k_cfg.allow_cid_dbu then
+					h.status_line(500);
+					h.content_type('text/plan');
+					b.l('cid:' || r.cid || ' is not allowed to access dbu:' || r.dbu);
+					goto skip_main;
+				end if;
+				if substrb(r.getc('x$prog'), -2) in ('_t', '_v') then
+					-- check if cid can direct access table/view directly
+					if not k_cfg.allow_cid_sql then
+						h.status_line(500);
+						h.content_type('text/plan');
+						b.l('cid:' || r.cid || ' is not allowed to access table/view/sql directly!');
+						goto skip_main;
+					end if;
+					r.setc('x$prog', 'k_sql.get');
+				else
+					k_parser.parse_prog;
+				end if;
+				r."_after_map";
+				dbms_application_info.set_module(r.dbu || '.' || nvl(r.pack, r.proc),
+																				 t.tf(r.pack is null, 'standalone', r.proc));
+			end;
 		
 			k_debug.time_header('before-exec');
 			<<re_call_servlet>>
