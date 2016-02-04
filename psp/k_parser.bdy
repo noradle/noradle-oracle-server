@@ -1,5 +1,7 @@
 create or replace package body k_parser is
 
+	-- parse as http://tools.ietf.org/html/rfc2616
+
 	procedure parse_head is
 	begin
 		-- further parse params from request line
