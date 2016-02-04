@@ -72,7 +72,8 @@ create or replace package body bios is
 		ra.params.delete;
 		rc.params.delete;
 	
-		if false and pv.disproto = 'HTTP' then
+		if pv.prehead is not null then
+			v_cbuf := pv.prehead;
 			goto actual;
 		end if;
 	
@@ -89,13 +90,13 @@ create or replace package body bios is
 		k_debug.time_header_init;
 		v_bytes := utl_tcp.read_text(pv.c, v_cbuf, v_len, false);
 		k_debug.trace(st('read prehead', v_len, v_bytes, v_cbuf), 'bios');
+	
+		<<actual>>
 		t.split(v_st, v_cbuf, ',');
 		pv.disproto := v_st(1);
 		ra.params('b$protocol') := st(v_st(1));
 		ra.params('b$cid') := st(v_st(2));
 		ra.params('b$cslot') := st(v_st(3));
-	
-		<<actual>>
 	
 		if pv.disproto != 'NORADLE' then
 			pv.protocol := 'HTTP';
@@ -114,6 +115,9 @@ create or replace package body bios is
 					getblob(v_len, rb.blob_entity);
 				end loop;
 			when 'HTTP' then
+				if pv.prehead is null then
+					pv.prehead := v_cbuf;
+				end if;
 				http.read_request;
 			when 'SCGI' then
 				scgi.read_request;

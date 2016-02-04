@@ -9,6 +9,7 @@ create or replace package pv is
 	cslot_id   pls_integer;
 	production boolean;
 	c          utl_tcp.connection; -- TCP/IP connection to the Web server
+	prehead    varchar2(4000 byte);
 
 	-- call level
 	disproto varchar2(30); -- NORADLE,SCGI,FCGI

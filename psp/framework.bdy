@@ -217,6 +217,7 @@ create or replace package body framework is
 				close_conn;
 				k_debug.trace(st(v_clinfo, 'try connect to dispatcher'), 'dispatcher');
 				make_conn;
+				pv.prehead := null;
 				exit;
 				k_debug.trace(st(v_clinfo, 'connected to dispatcher'), 'dispatcher');
 			exception
