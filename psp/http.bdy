@@ -18,7 +18,7 @@ create or replace package body http is
 		t.split(v_st, v_buf, ' ');
 		ra.params('u$method') := st(v_st(1));
 		ra.params('u$url') := st(v_st(2));
-		ra.params('u$proto') := st(v_st(3));
+		ra.params('u$protov') := st(v_st(3));
 		k_debug.trace(st('read request line end'), 'HTTP');
 	
 		-- step 2: read header name-value pairs
