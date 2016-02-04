@@ -130,6 +130,9 @@ create or replace package body bios is
 
 	procedure wpi(i binary_integer) is
 	begin
+		if pv.disproto = 'HTTP' then
+			return;
+		end if;
 		pv.wlen := utl_tcp.write_raw(pv.c, utl_raw.cast_from_binary_integer(i));
 	end;
 
