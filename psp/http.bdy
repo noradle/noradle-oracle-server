@@ -28,7 +28,7 @@ create or replace package body http is
 			v_pos := instrb(v_buf, ':');
 			v_name := 'h$' || lower(trim(substrb(v_buf, 1, v_pos - 1)));
 			v_value := lower(trim(substrb(v_buf, v_pos + 1)));
-			ra.params('h$' || v_name) := st(v_value);
+			ra.params(v_name) := st(v_value);
 			k_debug.trace(st('read header', v_name, v_value), 'HTTP');
 		end loop;
 		k_debug.trace(st('read request headers end'), 'HTTP');
