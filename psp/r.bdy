@@ -243,7 +243,7 @@ create or replace package body r is
 
 	function site(use_proxy boolean := true) return varchar2 is
 	begin
-		return protocol(use_proxy) || '://' || host;
+		return r.getc('u$site', protocol(use_proxy) || '://' || host);
 	end;
 
 	function pathname return varchar2 is
