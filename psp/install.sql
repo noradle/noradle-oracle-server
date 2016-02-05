@@ -112,6 +112,33 @@ prompt
 @@k_debug.spc
 @@k_debug.bdy
 
+prompt Creating package HTTP
+prompt =======================
+prompt
+@@http.spc
+@@http.bdy
+prompt Creating package SCGI
+prompt =======================
+prompt
+@@scgi.spc
+@@scgi.bdy
+prompt Creating package FCGI
+prompt =======================
+prompt
+@@fcgi.spc
+@@fcgi.bdy
+prompt Creating package NCGI
+prompt =======================
+prompt
+@@ncgi.spc
+@@ncgi.bdy
+
+prompt Creating package K_PARSER
+prompt =======================
+prompt
+@@k_parser.spc
+@@k_parser.bdy
+
 prompt Creating package BIOS
 prompt =======================
 prompt
