@@ -58,6 +58,7 @@ create or replace package body bios is
 		v_len   pls_integer;
 		v_st    st;
 		v_cbuf  varchar2(4000 byte);
+		i       pls_integer;
 		procedure read_wrapper is
 		begin
 			v_bytes := utl_tcp.read_raw(pv.c, v_raw4, 4, false);
@@ -91,12 +92,19 @@ create or replace package body bios is
 		v_bytes := utl_tcp.read_text(pv.c, v_cbuf, v_len, false);
 		k_debug.trace(st('read prehead', v_len, v_bytes, v_cbuf), 'bios');
 	
-		<<actual>>
+		<<actual>> -- parse prehead
 		t.split(v_st, v_cbuf, ',');
 		pv.disproto := v_st(1);
 		ra.params('b$protocol') := st(v_st(1));
 		ra.params('b$cid') := st(v_st(2));
 		ra.params('b$cslot') := st(v_st(3));
+	
+		i := 5;
+		loop
+			exit when i >= v_st.count;
+			r.setc(v_st(i), v_st(i + 1));
+			i := i + 2;
+		end loop;
 	
 		if pv.disproto != 'NORADLE' then
 			pv.protocol := 'HTTP';
