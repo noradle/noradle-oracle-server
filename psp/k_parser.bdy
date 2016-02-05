@@ -158,5 +158,22 @@ create or replace package body k_parser is
 		end if;
 	end;
 
+	procedure parse_forwards is
+		v_st st;
+		procedure parse_one(name varchar2) is
+			v varchar2(4000);
+		begin
+			v := r.getc('h$x-forwarded-' || name);
+			if v is not null then
+				t.split(v_st, v, ',', true);
+				ra.params('H$x-forwarded-' || name) := v_st;
+			end if;
+		end;
+	begin
+		parse_one('for');
+		parse_one('port');
+		parse_one('proto');
+	end;
+
 end k_parser;
 /

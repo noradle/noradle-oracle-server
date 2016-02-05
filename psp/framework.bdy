@@ -319,6 +319,9 @@ create or replace package body framework is
 				k_parser.parse_query;
 				k_parser.parse_cookie;
 				k_parser.parse_auth;
+				if r.getb('U$proxy', false) then
+					k_parser.parse_forwards;
+				end if;
 				case pv.disproto
 					when 'NORADLE' then
 						-- as http, http2, fast-cgi, spdy throuth noradle protocol
