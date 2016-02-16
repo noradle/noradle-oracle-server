@@ -265,6 +265,7 @@ create or replace package body framework is
 				v_count := v_count + 1;
 				bios.read_request;
 				pv.headers.delete;
+				k_cfg.client_control(pv.cc);
 				k_debug.time_header('after-read');
 			exception
 				when utl_tcp.transfer_timeout then
