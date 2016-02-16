@@ -20,8 +20,6 @@ create or replace package body framework is
 		v_quit    boolean := false;
 		v_qcode   pls_integer := -20526;
 		v_clinfo  varchar2(64);
-		v_timeout pls_integer := 3;
-		v_maxwcnt pls_integer := 3;
 		v_count   pls_integer;
 		v_sts     number := -1;
 		v_return  integer;
@@ -270,7 +268,7 @@ create or replace package body framework is
 				k_debug.time_header('after-read');
 			exception
 				when utl_tcp.transfer_timeout then
-					if v_count > v_maxwcnt then
+					if v_count > pv.maxwcnt then
 						-- after keep-alive time, no data arrived, think it as lost connection
 						k_debug.trace(st(v_clinfo, 'over idle timeout'), 'dispatcher');
 						do_quit;

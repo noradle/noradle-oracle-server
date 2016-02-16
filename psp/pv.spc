@@ -9,6 +9,8 @@ create or replace package pv is
 	cslot_id   pls_integer;
 	production boolean;
 	c          utl_tcp.connection; -- TCP/IP connection to the Web server
+	tx_timeout pls_integer := 3;
+	maxwcnt    pls_integer := 3;
 	prehead    varchar2(4000 byte);
 
 	-- call level
