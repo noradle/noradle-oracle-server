@@ -25,6 +25,11 @@ create or replace package body k_cfg is
 			return v;
 	end;
 
+	procedure client_control(p_cfg in out nocopy client_control_t%rowtype) is
+	begin
+		p_cfg := client_control(r.getc('b$cid'));
+	end;
+
 	function allow_cid_dbu return boolean is
 		v client_control_t%rowtype;
 	begin
