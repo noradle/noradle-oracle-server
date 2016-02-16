@@ -242,6 +242,7 @@ create or replace package body framework is
 			begin
 				v_count := v_count + 1;
 				bios.read_request;
+				v_count := 0;
 				pv.headers.delete;
 				k_cfg.client_control(pv.cc);
 				k_debug.time_header('after-read');
