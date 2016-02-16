@@ -315,16 +315,15 @@ create or replace package body framework is
 			-- do all pv init beforehand, next call to page init will not be first page
 		
 			-- map requested url to target servlet as x$dbu.x$prog form
-			if not k_mapping.route then
-				goto skip_main;
-			end if;
-		
+			-- or just print error page with request infomation
 			k_debug.time_header('before-exec');
-			if k_servlet.run then
+			if not k_mapping.route then
+				h.status_line(404);
+				k_debug.req_info;
+			elsif k_servlet.run then
 				do_quit;
 			end if;
 		
-			<<skip_main>>
 			output.finish;
 			bios.write_session;
 			bios.write_end;
