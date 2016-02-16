@@ -366,13 +366,13 @@ create or replace package body framework is
 			-- do all pv init beforehand, next call to page init will not be first page
 		
 			-- map requested url to target servlet as x$dbu.x$prog form
-				v_done := false;
 		
 			if not k_mapping.route then
 				goto skip_main;
 			end if;
 		
 			k_debug.time_header('before-exec');
+			v_done := false;
 			<<re_call_servlet>>
 			declare
 				no_dad_db_user exception; -- servlet db user does not exist
