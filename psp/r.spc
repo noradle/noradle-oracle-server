@@ -6,12 +6,6 @@ create or replace package r is
 	na pv.vc_arr;
 	va pv.vc_arr;
 
-	procedure "_init"
-	(
-		c        in out nocopy utl_tcp.connection,
-		passport pls_integer
-	);
-
 	procedure "_after_map";
 
 	procedure getblob

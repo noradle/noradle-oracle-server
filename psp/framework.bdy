@@ -265,6 +265,11 @@ create or replace package body framework is
 			begin
 				-- further parse from env
 				k_parser.parse_auto;
+				dbms_session.clear_identifier;
+				if pv.protocol = 'HTTP' then
+					pv.bsid := r.get('c$BSID');
+					pv.msid := r.get('c$MSID');
+				end if;
 				case pv.disproto
 					when 'NORADLE' then
 						-- as http, http2, fast-cgi, spdy throuth noradle protocol

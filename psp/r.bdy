@@ -55,30 +55,6 @@ create or replace package body r is
 		v_type := substrb(nvl(v_pack, v_proc), -1);
 	end;
 
-	procedure "_init"
-	(
-		c        in out nocopy utl_tcp.connection,
-		passport pls_integer
-	) is
-	begin
-		if passport != 80526 then
-			raise_application_error(-20000, 'can not call psp.web''s internal method');
-		end if;
-	
-		-- basic input
-		case pv.protocol
-			when 'HTTP' then
-				get('c$BSID', pv.bsid);
-				get('c$MSID', pv.msid);
-			when 'DATA' then
-				null;
-			when 'SCGI' then
-				null;
-		end case;
-	
-		dbms_session.clear_identifier;
-	end;
-
 	procedure body2clob is
 		v_len  number(8);
 		v_dos  integer := 1;

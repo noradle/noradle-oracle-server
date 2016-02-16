@@ -30,7 +30,6 @@ create or replace package body http_server is
 
 	procedure serv is
 	begin
-		r."_init"(pv.c, 80526);
 		k_init.by_request;
 		style.init_by_request;
 		dbms_session.set_identifier(r.bsid);
