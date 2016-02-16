@@ -264,13 +264,7 @@ create or replace package body framework is
 			pv.firstpg := true;
 			begin
 				-- further parse from env
-				k_parser.parse_head;
-				k_parser.parse_query;
-				k_parser.parse_cookie;
-				k_parser.parse_auth;
-				if r.getb('U$proxy', false) then
-					k_parser.parse_forwards;
-				end if;
+				k_parser.parse_auto;
 				case pv.disproto
 					when 'NORADLE' then
 						-- as http, http2, fast-cgi, spdy throuth noradle protocol

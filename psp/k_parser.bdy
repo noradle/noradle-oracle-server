@@ -175,5 +175,43 @@ create or replace package body k_parser is
 		parse_one('proto');
 	end;
 
+	function parse_qvalue(v varchar2) return st is
+		v_st1 st;
+		v_st2 st;
+	begin
+		if v is null then
+			return null;
+		end if;
+		t.split(v_st1, v, ',', true);
+		select t.left(a.column_value, ';') bulk collect
+			into v_st2
+			from table(v_st1) a
+		 order by t.right(a.column_value, ';') desc nulls last;
+		return v_st2;
+	end;
+
+	procedure parse_accept(name varchar2) is
+	begin
+		ra.params('H$accept' || name) := parse_qvalue(r.header('accept' || name));
+	end;
+
+	procedure parse_accepts is
+	begin
+		parse_accept('');
+		parse_accept('-encoding');
+		parse_accept('-language');
+	end;
+
+	procedure parse_auto is
+	begin
+		k_parser.parse_head;
+		k_parser.parse_query;
+		k_parser.parse_cookie;
+		k_parser.parse_auth;
+		if r.getb('U$proxy', false) then
+			k_parser.parse_forwards;
+		end if;
+	end;
+
 end k_parser;
 /
