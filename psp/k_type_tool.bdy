@@ -60,7 +60,7 @@ create or replace package body k_type_tool is
 		v_pos pls_integer;
 	begin
 		v_pos := instrb(str, sep);
-		if v_pos >= 0 then
+		if v_pos > 0 then
 			return substrb(str, 1, v_pos - 1);
 		else
 			return str;
@@ -75,7 +75,7 @@ create or replace package body k_type_tool is
 		v_pos pls_integer;
 	begin
 		v_pos := instrb(str, sep);
-		if v_pos >= 0 then
+		if v_pos > 0 then
 			return substrb(str, v_pos + 1);
 		else
 			return '';
