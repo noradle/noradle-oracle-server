@@ -205,16 +205,28 @@ prompt ===========================
 prompt
 @@any_server.spc
 @@any_server.bdy
+
+
+prompt
+prompt Creating package K_CFG
+prompt ======================
 @@k_cfg.spc
 @@k_cfg.bdy
+prompt Creating package K_MGMT_FRAME
+prompt ========================
+prompt
+@@k_mgmt_frame.spc
+@@k_mgmt_frame.bdy
 prompt Creating package K_MAPPING
 prompt ========================
 prompt
 @@k_mapping.spc
 @@k_mapping.bdy
+prompt Creating package K_SERVLET
+prompt ========================
 prompt
-prompt Creating package K_CFG
-prompt ======================
+@@k_servlet.spc
+@@k_servlet.bdy
 prompt
 prompt Creating package FRAMEWORK
 prompt ========================
