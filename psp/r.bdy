@@ -60,7 +60,6 @@ create or replace package body r is
 		c        in out nocopy utl_tcp.connection,
 		passport pls_integer
 	) is
-		v_uamd5 varchar2(22);
 	begin
 		if passport != 80526 then
 			raise_application_error(-20000, 'can not call psp.web''s internal method');
@@ -71,7 +70,6 @@ create or replace package body r is
 			when 'HTTP' then
 				get('c$BSID', pv.bsid);
 				get('c$MSID', pv.msid);
-				get('a$uamd5', v_uamd5);
 			when 'DATA' then
 				null;
 			when 'SCGI' then
