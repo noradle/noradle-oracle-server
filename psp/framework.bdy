@@ -67,7 +67,7 @@ create or replace package body framework is
 																			charset         => null,
 																			in_buffer_size  => 32767,
 																			out_buffer_size => 0,
-																			tx_timeout      => v_timeout);
+																			tx_timeout      => pv.tx_timeout);
 			select s.sid, s.serial#, p.spid
 				into v_sid, v_seq, v_spid
 				from v$session s, v$process p
