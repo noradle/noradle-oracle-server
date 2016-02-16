@@ -16,7 +16,6 @@ create or replace package body framework is
 		cfg_id  varchar2 := null,
 		slot_id pls_integer := 1
 	) is
-		v_done    boolean := false;
 		v_quit    boolean := false;
 		v_qcode   pls_integer := -20526;
 		v_clinfo  varchar2(64);
@@ -144,19 +143,6 @@ create or replace package body framework is
 		begin
 			k_debug.trace(st(v_clinfo, 'call quit'), 'dispatcher');
 			raise_application_error(v_qcode, '');
-		end;
-	
-		procedure show_exception is
-		begin
-			k_debug.trace(st('system exception(url,cfg_id,sqlcode,sqlerrm,error_backtrace)',
-											 r.url,
-											 pv.cfg_id,
-											 sqlcode,
-											 sqlerrm,
-											 dbms_utility.format_error_backtrace));
-			h.status_line(500);
-			h.content_type('text/plain');
-			b.line(dbms_utility.format_error_stack);
 		end;
 	
 	begin
@@ -329,53 +315,14 @@ create or replace package body framework is
 			-- do all pv init beforehand, next call to page init will not be first page
 		
 			-- map requested url to target servlet as x$dbu.x$prog form
-		
 			if not k_mapping.route then
 				goto skip_main;
 			end if;
 		
 			k_debug.time_header('before-exec');
-			v_done := false;
-			<<re_call_servlet>>
-			declare
-				no_dad_db_user exception; -- servlet db user does not exist
-				pragma exception_init(no_dad_db_user, -1435);
-				no_dad_auth_entry1 exception; -- table or view does not exist
-				pragma exception_init(no_dad_auth_entry1, -942);
-				no_dad_auth_entry2 exception;
-				pragma exception_init(no_dad_auth_entry2, -6576);
-				no_dad_auth_entry_right exception; -- table or view does not exist
-				pragma exception_init(no_dad_auth_entry_right, -01031);
-				ora_600 exception; -- oracle internal error
-				pragma exception_init(ora_600, -600);
-				ora_7445 exception; -- oracle internal error
-				pragma exception_init(ora_600, -7445);
-			begin
-				execute immediate 'call ' || r.dbu || '.dad_auth_entry()';
-			exception
-				when no_dad_auth_entry1 or no_dad_auth_entry2 or no_dad_auth_entry_right then
-					if v_done then
-						show_exception;
-					else
-						begin
-							sys.pw.add_dad_auth_entry(r.dbu);
-							v_done := true;
-							goto re_call_servlet;
-						exception
-							when no_dad_db_user then
-								show_exception;
-						end;
-					end if;
-				when ora_600 or ora_7445 then
-					-- todo: tell dispatcher unrecoverable error occured, and then quit
-					-- todo: give all request info back to dispatcher to resend to another OSP
-					-- todo: or dispatcher keep request info, prepare to resend to another OSP
-					show_exception;
-					do_quit;
-				when others then
-					-- system(not app level at k_gw) exception occurred        
-					show_exception;
-			end;
+			if k_servlet.run then
+				do_quit;
+			end if;
 		
 			<<skip_main>>
 			output.finish;
