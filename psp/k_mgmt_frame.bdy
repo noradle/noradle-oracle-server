@@ -39,7 +39,6 @@ create or replace package body k_mgmt_frame is
 				return true;
 			when 'KEEPALIVE' then
 				pv.keep_alive := r.getn('keepAliveInterval', 60);
-				k_debug.trace(st(pv.clinfo, 'signaled KEEPALIVE', pv.tx_timeout, pv.maxwcnt), 'dispatcher');
 			when 'ASK_OSP' then
 				ask_osp;
 			when 'CLI_CFG' then
