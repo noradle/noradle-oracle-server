@@ -186,8 +186,7 @@ create or replace package body framework is
 				when utl_tcp.network_error then
 					if sysdate > v_svr_stime + v_cfg.max_lifetime then
 						do_quit('max lifetime reached'); -- quit immediately in disconnected state
-					end if;
-					if got_quit_signal then
+					elsif got_quit_signal then
 						do_quit('quit signal received'); -- quit immediately in disconnected state
 					end if;
 					pv.c := null;
