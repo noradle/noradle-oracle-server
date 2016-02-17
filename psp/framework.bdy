@@ -16,10 +16,10 @@ create or replace package body framework is
 		cfg_id  varchar2 := null,
 		slot_id pls_integer := 1
 	) is
-		v_quit    boolean := false;
-		v_qcode   pls_integer := -20526;
-		v_count   pls_integer;
-		v_sts     number := -1;
+		v_quit  boolean := false;
+		v_qcode pls_integer := -20526;
+		v_count pls_integer;
+		v_sts   number := -1;
 	
 		v_svr_stime   date := sysdate;
 		v_svr_req_cnt pls_integer := 0;
