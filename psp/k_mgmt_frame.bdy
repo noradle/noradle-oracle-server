@@ -4,16 +4,15 @@ create or replace package body k_mgmt_frame is
 		v_st  st;
 		v_res varchar2(4000);
 	begin
-		pv.cc.cid := r.getc('m$cid');
-		v_st      := st('cid',
-										pv.cc.cid,
-										'cseq',
-										r.getc('m$cseq'),
-										'min_concurrency',
-										nvl(pv.cc.min_concurrency, 0),
-										'max_concurrency',
-										nvl(pv.cc.max_concurrency, 0));
-		v_res     := t.join(v_st, chr(0));
+		v_st  := st('cid',
+								pv.cc.cid,
+								'cseq',
+								r.getc('b$cseq'),
+								'min_concurrency',
+								nvl(pv.cc.min_concurrency, 0),
+								'max_concurrency',
+								nvl(pv.cc.max_concurrency, 0));
+		v_res := t.join(v_st, chr(0));
 		bios.write_frame(5, v_res);
 	exception
 		when no_data_found then
@@ -33,7 +32,7 @@ create or replace package body k_mgmt_frame is
 	-- return true for quit, false for continue
 	function response return boolean is
 	begin
-		case pv.protocol
+		case r.getc('b$mgmtype')
 			when 'QUIT' then
 				k_debug.trace(st(pv.clinfo, 'signaled QUIT'), 'dispatcher');
 				return true;
