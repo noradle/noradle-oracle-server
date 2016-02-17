@@ -200,23 +200,18 @@ create or replace package body framework is
 	
 		loop
 			dbms_application_info.set_module('utl_tcp', 'get_line');
-			--k_debug.trace(st(v_clinfo, 'wait reqeust'), 'dispatcher');
-		
-			-- request quit when max requests reached
-			if v_svr_req_cnt > v_cfg.max_requests then
-				signal_quit('over max requests');
-			end if;
 		
 			v_count := 0;
 			<<read_request>>
 		
-			-- request quit when max lifetime reached
-			if sysdate > v_svr_stime + v_cfg.max_lifetime then
+			if v_svr_req_cnt > v_cfg.max_requests then
+				-- request quit when max requests reached
+				signal_quit('over max requests');
+			elsif sysdate > v_svr_stime + v_cfg.max_lifetime then
+				-- request quit when max lifetime reached
 				signal_quit('over max lifetime');
-			end if;
-		
-			-- request quit when quit pipe signal arrived
-			if got_quit_signal then
+			elsif got_quit_signal then
+				-- request quit when quit pipe signal arrived
 				signal_quit('got quit signal');
 			end if;
 		
