@@ -18,7 +18,6 @@ create or replace package body framework is
 	) is
 		v_quit    boolean := false;
 		v_qcode   pls_integer := -20526;
-		v_clinfo  varchar2(64);
 		v_count   pls_integer;
 		v_sts     number := -1;
 	
@@ -121,9 +120,9 @@ create or replace package body framework is
 	
 		function got_quit_signal return boolean is
 		begin
-			v_sts := dbms_pipe.receive_message(v_clinfo, 0);
+			v_sts := dbms_pipe.receive_message(pv.clinfo, 0);
 			if v_sts not in (0, 1) then
-				k_debug.trace(st(v_clinfo, 'got signal ' || v_sts), 'dispatcher');
+				k_debug.trace(st(pv.clinfo, 'got signal ' || v_sts), 'dispatcher');
 			end if;
 			return v_sts = 0;
 		end;
@@ -141,7 +140,7 @@ create or replace package body framework is
 	
 		procedure do_quit is
 		begin
-			k_debug.trace(st(v_clinfo, 'call quit'), 'dispatcher');
+			k_debug.trace(st(pv.clinfo, 'call quit'), 'dispatcher');
 			raise_application_error(v_qcode, '');
 		end;
 	
@@ -149,26 +148,26 @@ create or replace package body framework is
 		execute immediate 'alter session set nls_date_format="yyyy-mm-dd hh24:mi:ss"';
 		if cfg_id is null then
 			select a.job_name
-				into v_clinfo
+				into pv.clinfo
 				from user_scheduler_running_jobs a
 			 where a.session_id = sys_context('userenv', 'sid');
-			pv.cfg_id := substr(v_clinfo, 9, lengthb(v_clinfo) - 8 - 5);
-			pv.in_seq := to_number(substr(v_clinfo, -4));
+			pv.cfg_id := substr(pv.clinfo, 9, lengthb(pv.clinfo) - 8 - 5);
+			pv.in_seq := to_number(substr(pv.clinfo, -4));
 		else
 			pv.cfg_id := cfg_id;
 			pv.in_seq := slot_id;
-			v_clinfo  := 'Noradle-' || cfg_id || ':' || ltrim(to_char(slot_id, '0000'));
+			pv.clinfo := 'Noradle-' || cfg_id || ':' || ltrim(to_char(slot_id, '0000'));
 		end if;
 	
-		select count(*) into v_count from v$session a where a.client_info = v_clinfo;
+		select count(*) into v_count from v$session a where a.client_info = pv.clinfo;
 		if v_count > 0 then
 			dbms_output.put_line('Noradle Server Status:inuse. quit');
 			dbms_application_info.set_client_info('');
 			return;
 		end if;
-		dbms_application_info.set_client_info(v_clinfo);
+		dbms_application_info.set_client_info(pv.clinfo);
 		dbms_application_info.set_module('free', null);
-		dbms_pipe.purge(v_clinfo);
+		dbms_pipe.purge(pv.clinfo);
 		k_cfg.server_control(v_cfg);
 		pv.entry := 'framework.entry';
 	
@@ -177,19 +176,19 @@ create or replace package body framework is
 		loop
 			begin
 				close_conn;
-				k_debug.trace(st(v_clinfo, 'try connect to dispatcher'), 'dispatcher');
+				k_debug.trace(st(pv.clinfo, 'try connect to dispatcher'), 'dispatcher');
 				make_conn;
 				pv.prehead := null;
 				exit;
-				k_debug.trace(st(v_clinfo, 'connected to dispatcher'), 'dispatcher');
+				k_debug.trace(st(pv.clinfo, 'connected to dispatcher'), 'dispatcher');
 			exception
 				when utl_tcp.network_error then
 					if sysdate > v_svr_stime + v_cfg.max_lifetime then
-						k_debug.trace(st(v_clinfo, 'max lifetime reached'), 'dispatcher');
+						k_debug.trace(st(pv.clinfo, 'max lifetime reached'), 'dispatcher');
 						do_quit; -- quit immediately in disconnected state
 					end if;
 					if got_quit_signal then
-						k_debug.trace(st(v_clinfo, 'quit signal received'), 'dispatcher');
+						k_debug.trace(st(pv.clinfo, 'quit signal received'), 'dispatcher');
 						do_quit; -- quit immediately in disconnected state
 					end if;
 					pv.c := null;
@@ -205,7 +204,7 @@ create or replace package body framework is
 			-- request quit when max requests reached
 			v_svr_req_cnt := v_svr_req_cnt + 1;
 			if v_svr_req_cnt > v_cfg.max_requests then
-				k_debug.trace(st(v_clinfo, 'over max requests'), 'dispatcher');
+				k_debug.trace(st(pv.clinfo, 'over max requests'), 'dispatcher');
 				signal_quit;
 			end if;
 		
@@ -214,13 +213,13 @@ create or replace package body framework is
 		
 			-- request quit when max lifetime reached
 			if sysdate > v_svr_stime + v_cfg.max_lifetime then
-				k_debug.trace(st(v_clinfo, 'over max lifetime'), 'dispatcher');
+				k_debug.trace(st(pv.clinfo, 'over max lifetime'), 'dispatcher');
 				signal_quit;
 			end if;
 		
 			-- request quit when quit pipe signal arrived
 			if got_quit_signal then
-				k_debug.trace(st(v_clinfo, 'got quit signal'), 'dispatcher');
+				k_debug.trace(st(pv.clinfo, 'got quit signal'), 'dispatcher');
 				signal_quit;
 			end if;
 		
@@ -236,18 +235,17 @@ create or replace package body framework is
 				when utl_tcp.transfer_timeout then
 					if v_count > pv.maxwcnt then
 						-- after keep-alive time, no data arrived, think it as lost connection
-						k_debug.trace(st(v_clinfo, 'over idle timeout'), 'dispatcher');
+						k_debug.trace(st(pv.clinfo, 'over idle timeout'), 'dispatcher');
 						do_quit;
 					else
 						goto read_request;
 					end if;
 				when utl_tcp.end_of_input then
-					k_debug.trace(st(v_clinfo, 'end of tcp'), 'dispatcher');
+					k_debug.trace(st(pv.clinfo, 'end of tcp'), 'dispatcher');
 					do_quit;
 			end;
 		
 			if pv.cslot_id = 0 then
-				pv.clinfo := v_clinfo;
 				if k_mgmt_frame.response then
 					do_quit;
 				else
@@ -256,7 +254,7 @@ create or replace package body framework is
 			end if;
 		
 			if pv.hp_flag then
-				dbms_hprof.start_profiling('PLSHPROF_DIR', v_clinfo || '.trc');
+				dbms_hprof.start_profiling('PLSHPROF_DIR', pv.clinfo || '.trc');
 				pv.hp_label := '';
 			end if;
 		
@@ -331,7 +329,7 @@ create or replace package body framework is
 			if pv.hp_flag then
 				dbms_hprof.stop_profiling;
 				tmp.s := nvl(pv.hp_label, 'noradle://' || r.dbu || '/' || r.prog);
-				tmp.n := dbms_hprof.analyze('PLSHPROF_DIR', v_clinfo || '.trc', run_comment => tmp.s);
+				tmp.n := dbms_hprof.analyze('PLSHPROF_DIR', pv.clinfo || '.trc', run_comment => tmp.s);
 			end if;
 		
 			if pv.disproto = 'HTTP' and h.header('Connection') = 'close' then
