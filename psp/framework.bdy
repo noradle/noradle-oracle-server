@@ -127,13 +127,14 @@ create or replace package body framework is
 			return v_sts = 0;
 		end;
 	
-		procedure signal_quit is
+		procedure signal_quit(reason varchar2) is
 		begin
 			-- only signal dispatcher to quit once
 			if v_quit then
 				return;
 			end if;
-			v_quit      := true;
+			v_quit := true;
+			k_debug.trace(st(pv.clinfo, reason), 'dispatcher');
 			pv.cslot_id := 0;
 			bios.write_frame(255);
 		end;
@@ -204,8 +205,7 @@ create or replace package body framework is
 			-- request quit when max requests reached
 			v_svr_req_cnt := v_svr_req_cnt + 1;
 			if v_svr_req_cnt > v_cfg.max_requests then
-				k_debug.trace(st(pv.clinfo, 'over max requests'), 'dispatcher');
-				signal_quit;
+				signal_quit('over max requests');
 			end if;
 		
 			v_count := 0;
@@ -213,14 +213,12 @@ create or replace package body framework is
 		
 			-- request quit when max lifetime reached
 			if sysdate > v_svr_stime + v_cfg.max_lifetime then
-				k_debug.trace(st(pv.clinfo, 'over max lifetime'), 'dispatcher');
-				signal_quit;
+				signal_quit('over max lifetime');
 			end if;
 		
 			-- request quit when quit pipe signal arrived
 			if got_quit_signal then
-				k_debug.trace(st(pv.clinfo, 'got quit signal'), 'dispatcher');
-				signal_quit;
+				signal_quit('got quit signal');
 			end if;
 		
 			-- accept arrival of new request
