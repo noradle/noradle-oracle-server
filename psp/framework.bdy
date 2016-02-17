@@ -216,7 +216,6 @@ create or replace package body framework is
 			-- accept arrival of new request
 			begin
 				bios.read_request;
-				pv.headers.delete;
 				k_cfg.client_control(pv.cc);
 				k_debug.time_header('after-read');
 			exception

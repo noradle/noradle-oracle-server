@@ -9,7 +9,7 @@ create or replace package body k_init is
 	
 		output."_init"(80526);
 		style.init_by_request; --todo: none-core, may be removed
-		--pv.headers.delete;
+		pv.headers.delete;
 		pv.cookies.delete;
 		pv.caches.delete;
 		pv.status_code   := 200;
