@@ -2,12 +2,13 @@ create or replace package body k_init is
 
 	procedure by_response is
 	begin
-		null;
-	end;
-
-	procedure header_init is
-	begin
+		-- initialize output flow control pv   
+		pv.msg_stream := false;
+		pv.use_stream := null;
+		pv.bom        := null;
+	
 		output."_init"(80526);
+		style.init_by_request; --todo: none-core, may be removed
 		--pv.headers.delete;
 		pv.cookies.delete;
 		pv.caches.delete;
@@ -26,18 +27,17 @@ create or replace package body k_init is
 		else
 			h.content_type;
 		end if;
-		h.content_encoding_auto;
+		--h.content_encoding_auto;
 	end;
 
 	procedure by_request is
 	begin
-		-- initialize output flow control pv   
-		pv.msg_stream := false;
-		pv.use_stream := null;
-		pv.bom        := null;
-	
-		header_init;
-		pv.elpl := dbms_utility.get_time;
+		-- further parse from env
+		k_parser.parse_auto;
+		if pv.protocol = 'HTTP' then
+			pv.bsid := r.get('c$BSID');
+			pv.msid := r.get('c$MSID');
+		end if;
 	end;
 
 end k_init;
