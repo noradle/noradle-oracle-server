@@ -205,13 +205,10 @@ create or replace package body framework is
 			<<read_request>>
 		
 			if v_svr_req_cnt > v_cfg.max_requests then
-				-- request quit when max requests reached
 				signal_quit('over max requests');
 			elsif sysdate > v_svr_stime + v_cfg.max_lifetime then
-				-- request quit when max lifetime reached
 				signal_quit('over max lifetime');
 			elsif got_quit_signal then
-				-- request quit when quit pipe signal arrived
 				signal_quit('got quit signal');
 			end if;
 		
