@@ -11,8 +11,7 @@ create or replace package pv is
 	c          utl_tcp.connection; -- TCP/IP connection to the Web server
 	cc         client_control_t%rowtype;
 	clinfo     varchar2(64);
-	tx_timeout pls_integer := 3;
-	maxwcnt    pls_integer := 3;
+	keep_alive pls_integer := 0;
 	prehead    varchar2(4000 byte);
 
 	-- call level

@@ -38,7 +38,7 @@ create or replace package body k_mgmt_frame is
 				k_debug.trace(st(pv.clinfo, 'signaled QUIT'), 'dispatcher');
 				return true;
 			when 'KEEPALIVE' then
-				pv.maxwcnt := floor(r.getn('keepAliveInterval', 60) + 3 / pv.tx_timeout);
+				pv.keep_alive := r.getn('keepAliveInterval', 60);
 				k_debug.trace(st(pv.clinfo, 'signaled KEEPALIVE', pv.tx_timeout, pv.maxwcnt), 'dispatcher');
 			when 'ASK_OSP' then
 				ask_osp;
