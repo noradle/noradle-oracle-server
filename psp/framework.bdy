@@ -218,8 +218,7 @@ create or replace package body framework is
 			exception
 				when utl_tcp.transfer_timeout then
 					if v_count > pv.maxwcnt then
-						-- after keep-alive time, no data arrived, think it as lost connection
-						do_quit('over idle timeout');
+						do_quit('idle timeout over keep-alive time, lost connection');
 					else
 						goto read_request;
 					end if;
