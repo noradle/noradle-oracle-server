@@ -203,6 +203,7 @@ create or replace package body framework is
 		
 			v_count := 0;
 			<<read_request>>
+			v_count := v_count + 1;
 		
 			if v_svr_req_cnt > v_cfg.max_requests then
 				signal_quit('over max requests');
@@ -214,9 +215,7 @@ create or replace package body framework is
 		
 			-- accept arrival of new request
 			begin
-				v_count := v_count + 1;
 				bios.read_request;
-				v_count := 0;
 				pv.headers.delete;
 				k_cfg.client_control(pv.cc);
 				k_debug.time_header('after-read');
