@@ -2,13 +2,14 @@ create or replace package body framework is
 
 	/* main functions
   0. establish connection to nodejs and listen for request
-  1. (x) control lifetime by max requests and max runtime
+  1. (x) control lifetime by max requests and max runtime, quit signal
   2. switch to target user current_schema
   3. collect request cpu/ellapsed time
   4. collect hprof statistics
   5. graceful quit, signal quit and accept quit control frame, then quit
   6. keep alive with dispatcher
   7. exit when ora-600 ora-7445 occurred
+  8. catch and handle all types of network exceptions 
   */
 
 	procedure entry
