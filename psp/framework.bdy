@@ -261,38 +261,21 @@ create or replace package body framework is
 			-- read & parse request info and do init work
 			pv.firstpg := true;
 			begin
-				-- further parse from env
-				k_parser.parse_auto;
-				dbms_session.clear_identifier;
-				if pv.protocol = 'HTTP' then
-					pv.bsid := r.get('c$BSID');
-					pv.msid := r.get('c$MSID');
+				pv.elpl := dbms_utility.get_time;
+				k_init.by_response;
+				k_init.by_request;
+				dbms_session.set_identifier(r.bsid);
+				if pv.disproto = 'HTTP' then
+					http.init;
 				end if;
-				case pv.disproto
-					when 'NORADLE' then
-						-- as http, http2, fast-cgi, spdy throuth noradle protocol
-						if pv.protocol = 'HTTP' then
-							http_server.serv;
-						elsif pv.protocol in ('DATA', 'NDBC') then
-							data_server.serv;
-						else
-							data_server.serv;
-						end if;
-					when 'HTTP' then
-						http_server.serv;
-						http.init;
-					when 'SCGI' then
-						http_server.serv;
-					when 'FCGI' then
-						http_server.serv;
-					else
-						begin
-							execute immediate 'call ' || pv.protocol || '_server.serv()';
-						exception
-							when pv.ex_invalid_proc then
-								any_server.serv;
-						end;
-				end case;
+				if pv.protocol not in ('HTTP', 'DATA', 'NDBC') then
+					begin
+						execute immediate 'call ' || pv.protocol || '_server.serv()';
+					exception
+						when pv.ex_invalid_proc then
+							any_server.serv;
+					end;
+				end if;
 			exception
 				when pv.ex_continue then
 					continue; -- give up current request service
