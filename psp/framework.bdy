@@ -268,19 +268,6 @@ create or replace package body framework is
 				if pv.disproto = 'HTTP' then
 					http.init;
 				end if;
-			exception
-				when pv.ex_continue then
-					continue; -- give up current request service
-				when pv.ex_quit then
-					do_quit;
-				when others then
-					k_debug.trace(st('page before exection',
-													 pv.protocol,
-													 r.url,
-													 sqlcode,
-													 sqlerrm,
-													 dbms_utility.format_error_backtrace));
-					do_quit;
 			end;
 		
 			pv.firstpg := false;
