@@ -19,7 +19,6 @@ create or replace package body framework is
 		v_quit  boolean := false;
 		v_qcode pls_integer := -20526;
 		v_count pls_integer;
-		v_stime pls_integer;
 		v_dtime pls_integer;
 		v_sts   number := -1;
 	
@@ -199,8 +198,7 @@ create or replace package body framework is
 	
 		loop
 			dbms_application_info.set_module('utl_tcp', 'get_line');
-			v_stime := dbms_utility.get_time;
-			v_dtime := v_stime + (pv.keep_alive + 3) * 100;
+			v_dtime := dbms_utility.get_time + (pv.keep_alive + 3) * 100;
 		
 			<<read_request>>
 		
