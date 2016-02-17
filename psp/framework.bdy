@@ -139,10 +139,10 @@ create or replace package body framework is
 			bios.write_frame(255);
 		end;
 	
-		procedure do_quit is
+		procedure do_quit(reason varchar2) is
 		begin
-			k_debug.trace(st(pv.clinfo, 'call quit'), 'dispatcher');
-			raise_application_error(v_qcode, '');
+			k_debug.trace(st(pv.clinfo, 'do quit: ' || reason), 'dispatcher');
+			raise_application_error(v_qcode, reason);
 		end;
 	
 	begin
@@ -185,12 +185,10 @@ create or replace package body framework is
 			exception
 				when utl_tcp.network_error then
 					if sysdate > v_svr_stime + v_cfg.max_lifetime then
-						k_debug.trace(st(pv.clinfo, 'max lifetime reached'), 'dispatcher');
-						do_quit; -- quit immediately in disconnected state
+						do_quit('max lifetime reached'); -- quit immediately in disconnected state
 					end if;
 					if got_quit_signal then
-						k_debug.trace(st(pv.clinfo, 'quit signal received'), 'dispatcher');
-						do_quit; -- quit immediately in disconnected state
+						do_quit('quit signal received'); -- quit immediately in disconnected state
 					end if;
 					pv.c := null;
 					-- do not continuiously try connect to waste computing resource
@@ -222,19 +220,17 @@ create or replace package body framework is
 				when utl_tcp.transfer_timeout then
 					if v_count > pv.maxwcnt then
 						-- after keep-alive time, no data arrived, think it as lost connection
-						k_debug.trace(st(pv.clinfo, 'over idle timeout'), 'dispatcher');
-						do_quit;
+						do_quit('over idle timeout');
 					else
 						goto read_request;
 					end if;
 				when utl_tcp.end_of_input then
-					k_debug.trace(st(pv.clinfo, 'end of tcp'), 'dispatcher');
-					do_quit;
+					do_quit('end of tcp');
 			end;
 		
 			if pv.cslot_id = 0 then
 				if k_mgmt_frame.response then
-					do_quit;
+					do_quit('dispatcher send');
 				else
 					continue;
 				end if;
@@ -268,7 +264,7 @@ create or replace package body framework is
 				h.status_line(404);
 				k_debug.req_info;
 			elsif k_servlet.run then
-				do_quit;
+				do_quit('servlet exception');
 			end if;
 		
 			output.finish;
