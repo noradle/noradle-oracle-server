@@ -7,10 +7,6 @@ create or replace package body ncgi is
 		v_hprof varchar2(30);
 		v_st    st;
 	begin
-		pv.protocol := utl_tcp.get_line(pv.c, true);
-		v_hprof     := utl_tcp.get_line(pv.c, true);
-		pv.hp_flag  := v_hprof is not null;
-		k_debug.trace(st('protocol/hprof', pv.protocol, t.tf(pv.hp_flag, 'true', 'false')), 'bios');
 		loop
 			v_name  := trim(utl_tcp.get_line(pv.c, true));
 			v_value := utl_tcp.get_line(pv.c, true);

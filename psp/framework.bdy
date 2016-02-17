@@ -242,8 +242,8 @@ create or replace package body framework is
 			pv.firstpg := true;
 			begin
 				pv.elpl := dbms_utility.get_time;
-				k_init.by_response;
 				k_init.by_request;
+				k_init.by_response;
 				dbms_session.set_identifier(r.bsid);
 				if pv.disproto = 'HTTP' then
 					http.init;
