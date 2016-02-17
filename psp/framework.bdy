@@ -203,7 +203,6 @@ create or replace package body framework is
 			--k_debug.trace(st(v_clinfo, 'wait reqeust'), 'dispatcher');
 		
 			-- request quit when max requests reached
-			v_svr_req_cnt := v_svr_req_cnt + 1;
 			if v_svr_req_cnt > v_cfg.max_requests then
 				signal_quit('over max requests');
 			end if;
@@ -250,6 +249,7 @@ create or replace package body framework is
 					continue;
 				end if;
 			end if;
+			v_svr_req_cnt := v_svr_req_cnt + 1;
 		
 			if pv.hp_flag then
 				dbms_hprof.start_profiling('PLSHPROF_DIR', pv.clinfo || '.trc');
