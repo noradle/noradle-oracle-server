@@ -268,14 +268,6 @@ create or replace package body framework is
 				if pv.disproto = 'HTTP' then
 					http.init;
 				end if;
-				if pv.protocol not in ('HTTP', 'DATA', 'NDBC') then
-					begin
-						execute immediate 'call ' || pv.protocol || '_server.serv()';
-					exception
-						when pv.ex_invalid_proc then
-							any_server.serv;
-					end;
-				end if;
 			exception
 				when pv.ex_continue then
 					continue; -- give up current request service
