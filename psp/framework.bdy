@@ -178,11 +178,9 @@ create or replace package body framework is
 		loop
 			begin
 				close_conn;
-				k_debug.trace(st(pv.clinfo, 'try connect to dispatcher'), 'dispatcher');
 				make_conn;
 				pv.prehead := null;
 				exit;
-				k_debug.trace(st(pv.clinfo, 'connected to dispatcher'), 'dispatcher');
 			exception
 				when utl_tcp.network_error then
 					if sysdate > v_svr_stime + v_cfg.max_lifetime then
