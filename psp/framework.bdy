@@ -19,6 +19,7 @@ create or replace package body framework is
 		v_quit  boolean := false;
 		v_qcode pls_integer := -20526;
 		v_count pls_integer;
+		v_dtime pls_integer;
 		v_sts   number := -1;
 	
 		v_svr_stime   date := sysdate;
@@ -65,7 +66,7 @@ create or replace package body framework is
 																			charset         => null,
 																			in_buffer_size  => 32767,
 																			out_buffer_size => 0,
-																			tx_timeout      => pv.tx_timeout);
+																			tx_timeout      => 3);
 			select s.sid, s.serial#, p.spid
 				into v_sid, v_seq, v_spid
 				from v$session s, v$process p
@@ -197,10 +198,9 @@ create or replace package body framework is
 	
 		loop
 			dbms_application_info.set_module('utl_tcp', 'get_line');
+			v_dtime := dbms_utility.get_time + (pv.keep_alive + 3) * 100;
 		
-			v_count := 0;
 			<<read_request>>
-			v_count := v_count + 1;
 		
 			if v_svr_req_cnt > v_cfg.max_requests then
 				signal_quit('over max requests');
@@ -217,11 +217,10 @@ create or replace package body framework is
 				k_debug.time_header('after-read');
 			exception
 				when utl_tcp.transfer_timeout then
-					if v_count > pv.maxwcnt then
+					if dbms_utility.get_time > v_dtime then
 						do_quit('idle timeout over keep-alive time, lost connection');
-					else
-						goto read_request;
 					end if;
+					goto read_request;
 				when utl_tcp.end_of_input then
 					do_quit('end of tcp');
 			end;
