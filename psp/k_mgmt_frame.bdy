@@ -33,7 +33,7 @@ create or replace package body k_mgmt_frame is
 	-- return true for quit, false for continue
 	function response return boolean is
 	begin
-		case pv.protocol
+		case r.getc('b$mgmtype')
 			when 'QUIT' then
 				k_debug.trace(st(pv.clinfo, 'signaled QUIT'), 'dispatcher');
 				return true;
