@@ -198,7 +198,7 @@ create or replace package body framework is
 	
 		loop
 			dbms_application_info.set_module('utl_tcp', 'get_line');
-			v_dtime := dbms_utility.get_time + (pv.keep_alive + 3) * 100;
+			v_dtime := dbms_utility.get_time + (nvl(pv.keep_alive, v_cfg.idle_timeout) + 3) * 100;
 		
 			<<read_request>>
 		
