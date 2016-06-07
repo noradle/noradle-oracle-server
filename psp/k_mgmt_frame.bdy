@@ -4,11 +4,11 @@ create or replace package body k_mgmt_frame is
 		v_st  st;
 		v_res varchar2(4000);
 	begin
-		pv.cc.cid := r.getc('m$cid');
+		pv.cc.cid := r.getc('b$cid');
 		v_st      := st('cid',
 										pv.cc.cid,
 										'cseq',
-										r.getc('m$cseq'),
+										r.getc('b$cseq'),
 										'min_concurrency',
 										nvl(pv.cc.min_concurrency, 0),
 										'max_concurrency',
