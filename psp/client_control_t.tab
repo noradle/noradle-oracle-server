@@ -8,9 +8,9 @@ create table CLIENT_CONTROL_T
   max_concurrency NUMBER(4) not null,
   dbu_default     VARCHAR2(30) not null,
   dbu_filter      VARCHAR2(2000),
+  allow_sql       VARCHAR2(1),
   url_pattern     VARCHAR2(200),
-  routing_proc    VARCHAR2(61);
-  allow_sql       VARCHAR2(1)
+  routing_proc    VARCHAR2(61)
 )
 ;
 comment on column CLIENT_CONTROL_T.cid

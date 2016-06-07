@@ -9,7 +9,8 @@ create or replace package body framework is
   5. graceful quit, signal quit and accept quit control frame, then quit
   6. keep alive with dispatcher
   7. exit when ora-600 ora-7445 occurred
-  8. catch and handle all types of network exceptions 
+  8. catch and handle all types of network exceptions
+  9. receive request and flush response
   */
 
 	procedure entry
@@ -197,7 +198,7 @@ create or replace package body framework is
 	
 		loop
 			dbms_application_info.set_module('utl_tcp', 'get_line');
-			v_dtime := dbms_utility.get_time + (pv.keep_alive + 3) * 100;
+			v_dtime := dbms_utility.get_time + (nvl(pv.keep_alive, v_cfg.idle_timeout) + 3) * 100;
 		
 			<<read_request>>
 		
@@ -232,6 +233,8 @@ create or replace package body framework is
 				end if;
 			end if;
 			v_svr_req_cnt := v_svr_req_cnt + 1;
+			pv.protocol   := r.getc('b$protocol', 'HTTP');
+			pv.hp_flag    := r.getb('b$hprof', false);
 		
 			if pv.hp_flag then
 				dbms_hprof.start_profiling('PLSHPROF_DIR', pv.clinfo || '.trc');
