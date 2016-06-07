@@ -2,13 +2,15 @@ create or replace package body framework is
 
 	/* main functions
   0. establish connection to nodejs and listen for request
-  1. (x) control lifetime by max requests and max runtime
+  1. (x) control lifetime by max requests and max runtime, quit signal
   2. switch to target user current_schema
   3. collect request cpu/ellapsed time
   4. collect hprof statistics
   5. graceful quit, signal quit and accept quit control frame, then quit
   6. keep alive with dispatcher
   7. exit when ora-600 ora-7445 occurred
+  8. catch and handle all types of network exceptions
+  9. receive request and flush response
   */
 
 	procedure entry
@@ -178,11 +180,9 @@ create or replace package body framework is
 		loop
 			begin
 				close_conn;
-				k_debug.trace(st(pv.clinfo, 'try connect to dispatcher'), 'dispatcher');
 				make_conn;
 				pv.prehead := null;
 				exit;
-				k_debug.trace(st(pv.clinfo, 'connected to dispatcher'), 'dispatcher');
 			exception
 				when utl_tcp.network_error then
 					if sysdate > v_svr_stime + v_cfg.max_lifetime then
@@ -245,8 +245,8 @@ create or replace package body framework is
 			pv.firstpg := true;
 			begin
 				pv.elpl := dbms_utility.get_time;
-				k_init.by_response;
 				k_init.by_request;
+				k_init.by_response;
 				dbms_session.set_identifier(r.bsid);
 				if pv.disproto = 'HTTP' then
 					http.init;
