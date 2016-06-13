@@ -256,12 +256,6 @@ prompt
 --------------------------------------------------------------------------------
 
 prompt
-prompt Creating package KV
-prompt ===================
-prompt
-@@kv.spc
-@@kv.bdy
-prompt
 prompt Creating package CACHE
 prompt ======================
 prompt

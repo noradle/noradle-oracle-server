@@ -13,7 +13,6 @@ create or replace public synonym t for k_type_tool;
 prompt other tools
 create or replace public synonym k_debug for k_debug;
 create or replace public synonym odb for k_debug;
-create or replace public synonym kv for kv;
 
 prompt for input/request
 create or replace public synonym r for r;
