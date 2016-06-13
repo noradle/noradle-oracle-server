@@ -135,5 +135,11 @@ create or replace package body k_gw is
 		commit;
 	end;
 
+	procedure link_schema(pspdbu varchar2) is
+	begin
+		execute immediate 'create or replace procedure dad_auth_entry is begin k_gw.do; end;';
+		execute immediate 'grant execute on dad_auth_entry to ' || pspdbu;
+	end;
+
 end k_gw;
 /

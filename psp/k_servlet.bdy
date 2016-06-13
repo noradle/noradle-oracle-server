@@ -13,6 +13,17 @@ create or replace package body k_servlet is
 		b.line(dbms_utility.format_error_stack);
 	end;
 
+	procedure show_need_link_schema is
+	begin
+		h.status_line(500);
+		h.content_type('text/plain');
+		b.l('noradle will access database user : ' || r.dbu);
+		b.l('but have not grant noradle execute path and right');
+		b.l('login in sqlplus as db user ' || r.dbu);
+		b.l('execute the following code to make it done');
+		b.l('exec k_gw.link_schema(pspdbu)');
+	end;
+
 	function run return boolean is
 		no_dad_db_user exception; -- servlet db user does not exist
 		pragma exception_init(no_dad_db_user, -1435);
@@ -26,25 +37,13 @@ create or replace package body k_servlet is
 		pragma exception_init(ora_600, -600);
 		ora_7445 exception; -- oracle internal error
 		pragma exception_init(ora_600, -7445);
-		v_done boolean := false;
 	begin
 		<<re_call_servlet>>
 		begin
 			execute immediate 'call ' || r.dbu || '.dad_auth_entry()';
 		exception
 			when no_dad_auth_entry1 or no_dad_auth_entry2 or no_dad_auth_entry_right then
-				if v_done then
-					show_exception;
-				else
-					begin
-						sys.pw.add_dad_auth_entry(r.dbu);
-						v_done := true;
-						goto re_call_servlet;
-					exception
-						when no_dad_db_user then
-							show_exception;
-					end;
-				end if;
+				show_need_link_schema;
 			when ora_600 or ora_7445 then
 				-- todo: tell dispatcher unrecoverable error occured, and then quit
 				-- todo: give all request info back to dispatcher to resend to another OSP
