@@ -10,11 +10,6 @@ whenever sqlerror exit
 
 set define on
 
-prompt Installing objects in sys,
-pause press enter to continue ...
-remark install on sys
-@@pw.pck
-
 remark start $ORACLE_HOME/rdbms/admin/dbmshptab.sql
 remark create directory in SYS, grant read to psp
 remark grant read, write on directory SYS.PLSHPROF_DIR to psp;
