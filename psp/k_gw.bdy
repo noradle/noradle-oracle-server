@@ -1,4 +1,10 @@
-create or replace package body k_gw is
+﻿create or replace package body k_gw is
+
+	ex_package_state_invalid exception;
+	pragma exception_init(ex_package_state_invalid, -04061);
+	-- ORA-04061: existing state of string has been invalidated
+	-- Cause: Attempt to resume the execution of a stored procedure using the existing state which has become invalid or inconsistent with the stored procedure because the procedure has been altered or dropped. 
+	-- Action: Try again; this error should have caused the existing state of all packages to be re-initialized. 
 
 	procedure error_not_exist is
 	begin
@@ -57,7 +63,7 @@ create or replace package body k_gw is
 				execute immediate 'call ' || v_before || '()';
 			end if;
 		exception
-			when pv.ex_package_state_invalid then
+			when ex_package_state_invalid then
 				if v_tried then
 					error_execute(sqlcode, sqlerrm, dbms_utility.format_error_backtrace, dbms_utility.format_error_stack);
 					rollback;
@@ -86,7 +92,7 @@ create or replace package body k_gw is
 		begin
 			execute immediate 'call ' || r.prog || '()';
 		exception
-			when pv.ex_package_state_invalid then
+			when ex_package_state_invalid then
 				if v_tried then
 					error_execute(sqlcode, sqlerrm, dbms_utility.format_error_backtrace, dbms_utility.format_error_stack);
 					rollback;
