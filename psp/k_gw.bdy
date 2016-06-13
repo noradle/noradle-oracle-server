@@ -67,10 +67,7 @@ create or replace package body k_gw is
 																	'^.*ORA-04061:( package (body )?"(\w+\.\w+)" ).*$',
 																	'alter package \3 compile \2',
 																	modifier => 'n');
-					sys.pw.recompile(regexp_replace(dbms_utility.format_error_stack,
-																					'^.*ORA-04061:( package (body )?"(\w+\.\w+)" ).*$',
-																					'alter package \3 compile \2',
-																					modifier => 'n'));
+					execute immediate v_sql;
 					v_tried := true;
 					goto retry_filter;
 				end if;
@@ -99,7 +96,7 @@ create or replace package body k_gw is
 																	'^.*ORA-04061:( package (body )?"(\w+\.\w+)" ).*$',
 																	'alter package \3 compile \2',
 																	modifier => 'n');
-					sys.pw.recompile(v_sql);
+					execute immediate v_sql;
 					v_tried := true;
 					goto retry_prog;
 				end if;
