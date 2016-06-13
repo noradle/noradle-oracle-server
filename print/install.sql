@@ -5,12 +5,6 @@
 set define off
 set echo on
 
-whenever sqlerror continue
-prompt Notice: all the drop objects errors can be ignored, do not care about it
-create table EXT_URL_BAK as select * from EXT_URL_T;
-drop table EXT_URL_T cascade constraints;
-whenever sqlerror exit
-
 prompt
 prompt Creating table EXT_URL_T
 prompt ========================
@@ -103,13 +97,6 @@ create or replace synonym mp for msg_pipe;
 create or replace synonym mp_h for msg_pipe;
 
 --------------------------------------------------------------------------------
-
-whenever sqlerror continue
-prompt Notice: restore old config data
-insert into EXT_URL_T select * from EXT_URL_BAK;
-drop table EXT_URL_BAK cascade constraints;
-commit;
-whenever sqlerror exit
 
 set echo off
 set define on

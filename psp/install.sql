@@ -6,14 +6,6 @@
 set define off
 set echo on
 
-whenever sqlerror continue
-prompt Notice: all the drop objects errors can be ignored, do not care about it
-create table SERVER_CONTROL_BAK as select * from SERVER_CONTROL_T;
-create table CLIENT_CONTROL_BAK as select * from CLIENT_CONTROL_T;
-drop table SERVER_CONTROL_T cascade constraints;
-drop table CLIENT_CONTROL_T cascade constraints;
-whenever sqlerror exit
-
 --------------------------------------------------------------------------------
 
 prompt
@@ -270,14 +262,6 @@ prompt
 
 --------------------------------------------------------------------------------
 
-whenever sqlerror continue
-prompt Notice: restore old config data
-insert into SERVER_CONTROL_T select * from SERVER_CONTROL_BAK;
-insert into CLIENT_CONTROL_T select * from CLIENT_CONTROL_BAK;
-insert into EXT_URL_T select * from EXT_URL_BAK;
-drop table SERVER_CONTROL_BAK cascade constraints;
-drop table CLIENT_CONTROL_BAK cascade constraints;
-drop table EXT_URL_BAK cascade constraints;
 desc SERVER_CONTROL_T
 insert into SERVER_CONTROL_T (CFG_ID, GW_HOST, GW_PORT, MIN_SERVERS, MAX_SERVERS, MAX_REQUESTS, MAX_LIFETIME,IDLE_TIMEOUT)
 values ('dispatcher', '127.0.0.1', 1522, 4, 12, 1000, '+0001 00:00:00', 300);
@@ -285,7 +269,6 @@ desc CLIENT_CONTROL_T
 insert into client_control_t (cid, passwd, min_concurrency, max_concurrency, dbu_default, dbu_filter, allow_sql)
 values ('demo', 'demo', '3', '8', 'demo', 'demo', 'Y');
 commit;
-whenever sqlerror exit
 
 set echo off
 set define on
