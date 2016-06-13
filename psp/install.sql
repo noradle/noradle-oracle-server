@@ -100,6 +100,8 @@ rem rely on r.client_addr in .gen_token
 prompt
 @@k_type_tool.spc
 @@k_type_tool.bdy
+create or replace synonym t for k_type_tool;
+
 prompt Creating package E
 prompt ==================
 prompt
@@ -111,6 +113,7 @@ prompt ========================
 prompt
 @@k_debug.spc
 @@k_debug.bdy
+create or replace synonym odb for k_debug;
 
 prompt Creating package HTTP
 prompt =======================
@@ -155,12 +158,16 @@ prompt =======================
 prompt
 @@k_resp_head.spc
 @@k_resp_head.bdy
+create or replace synonym k_http for k_resp_head;
+create or replace synonym h for k_resp_head;
+create or replace synonym hdr for k_resp_head;
 prompt Creating package K_RESP_BODY
 prompt =======================
 prompt
 @@k_resp_body.spc
 @@k_resp_body.bdy
-
+create or replace synonym b for k_resp_body;
+create or replace synonym bdy for k_resp_body;
 --------------------------------------------------------------------------------
 
 
