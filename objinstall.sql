@@ -5,4 +5,3 @@ whenever sqlerror exit
 @@psp/install.sql
 @@print/install.sql
 exec DBMS_UTILITY.COMPILE_SCHEMA(upper('&pspdbu'),false);
-@@contexts.sql
