@@ -1,4 +1,3 @@
-grant execute on SYS.PW to &pspdbu;
 grant read, write on directory SYS.PLSHPROF_DIR to &pspdbu;
 alter user &pspdbu default tablespace sysaux;
 alter user &pspdbu quota unlimited on sysaux;
@@ -17,7 +16,7 @@ grant execute on SYS.DBMS_SESSION to &pspdbu;
 -- Grant/Revoke role privileges
 grant resource to &pspdbu;
 
--- Grant/Revoke system privileges 
+-- Grant/Revoke system privileges
 grant create any context to &pspdbu;
 grant create job to &pspdbu;
 grant create session to &pspdbu;
