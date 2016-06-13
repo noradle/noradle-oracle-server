@@ -3,8 +3,8 @@ spool install.log replace
 prompt install log will write to "install.log", please check it after the script run
 pause press enter to continue
 
-prompt Are you sure that you are in the Noradle(psp.web) project's oracle subdir,
-prompt cd `npm -g root`/noradle/oracle
+prompt Are you sure that you are in the project directory,
+prompt cd `npm -g root`/noradle-oracle-server
 pause if not, break(CTRL-C) and cd it and retry ...
 whenever sqlerror exit
 
@@ -39,8 +39,9 @@ Rem @@grant_network.sql
 --------------------------------------------------------------------------------
 
 prompt
-prompt Are you sure you have clean empty PSP db user/schema already?
 prompt Noradle's core units(tables,plsql,...) in oracle will be installed to the schema
+prompt schema user will be created if not exist
+prompt or the schema is kept but its content/objects will be override if exist
 prompt You can try the sql scripts below to achieve the preparation required above.
 prompt exec psp.k_pmon.stop;;
 prompt drop user psp cascade;;
@@ -49,29 +50,9 @@ prompt alter user psp quota unlimited on sysaux;;
 pause if not, create empty PSP db user beforehand, and then press enter to continue
 accept pspdbu char default 'psp' prompt 'Enter the schema/User(must already exist) for noradle software (psp) : '
 
-prompt Installing Noradle(psp.web) engine software to schema "&pspdbu",
-pause press enter to continue ...
-alter session set current_schema = &pspdbu;
-prompt begin to install Noradle system schema objects
-@@grant2psp.sql
-whenever sqlerror continue
-exec k_pmon.stop
-rem @?/rdbms/admin/dbmshptab.sql
-@@dbmshptab.sql
-whenever sqlerror exit
-@@psp/install.sql
-@@print/install.sql
-exec DBMS_UTILITY.COMPILE_SCHEMA(upper('&pspdbu'),false);
-@@contexts.sql
-@@grant_api.sql
-@@pub_synonym.sql
-
---------------------------------------------------------------------------------
-
+@@preinstall.sql
+@@objinstall.sql
 prompt Noradle bundle in oracle db part have been installed successfully!
-
-prompt grant network access, for oracle to reach to dispatcher
-@@grant_network.sql
 
 prompt Please follow the steps below to learn from demo
 prompt 0. grant network access to the address of dispatcher, for psp user (optional, did by default in this script)
@@ -79,5 +60,10 @@ prompt 1. config server_config_t, let oracle known where to reverse connect to d
 prompt 2. start dispatcher
 prompt 3. in oracle psp schema, exec k_pmon.run_job to start oracle server processes
 prompt 4. install and run noradle-demo app to check if server is running properly
+
+prompt about to export API (abourt public grant/synonym)
+prompt if install for real deployment, press <ENTER> to continue
+pause if install to a temporary schema for comparison/upgrade, press break(CTRL-C) to ignore export
+@@export.sql
 spool off
 exit
