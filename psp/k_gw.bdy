@@ -1,4 +1,4 @@
-﻿create or replace package body k_gw is
+create or replace package body k_gw is
 
 	ex_package_state_invalid exception;
 	pragma exception_init(ex_package_state_invalid, -04061);
