@@ -1,6 +1,3 @@
-declare
-	ex_exist exception;
-	pragma exception_init(ex_exist, -31003);
 begin
 	-- uncomment this when you want existing ACL "noradle.xml" to be removed first
 	-- dbms_network_acl_admin.drop_acl(acl => 'noradle.xml');
@@ -11,8 +8,9 @@ begin
 																			is_grant    => true,
 																			privilege   => 'connect');
 	exception
-		when ex_exist then
-			null;
+		when others then
+		  dbms_output.put_line(sqlcode);
+			dbms_output.put_line(sqlerrm);
 	end;
 	-- when acl "noradle.xml" exists, execute .add_privilege is ok,
 	-- for example, when you reinstall psp schema
