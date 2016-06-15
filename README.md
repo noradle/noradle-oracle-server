@@ -91,6 +91,15 @@ Note: noradle core objects will be installed into schema named 'PSP' by default.
 **PSP** is abbreviation for "PL/SQL Server Page", just like PHP, JSP does.  
 "psp user" stand for noradle core schema name in noradle document.
 
+How to upgrade
+=================
+
+* install into another db user, such as tmp, psp1, or psp_v0_15_2(version) or psp_eb34f8(git commit)
+* at the middle of install.sql execution, it will show export is going and pause
+* do not press enter to continue, press CTRL-C to abort it
+* this way, no public synonym and other action that will ruin public space, only engine objects itself is installed
+* use any oracle IDE(pl/sql developer) to compare schema difference and update the target engine schema
+
 Grant right for oracle to NodeJS TCP/IP connection
 ==============================================================
 
