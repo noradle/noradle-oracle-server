@@ -54,7 +54,8 @@ how to install
 
 ## Install NORADLE engine schema objects
 
-use sqlplus to login into the target oracle database as sysdba,
+use sqlplus to login into the target oracle database as sysdba,  
+(note: only sys can grant execute right for sys owned packages, just DBA role cannot)
 then execute install.sql script file. Example like this:
 
 ```
@@ -75,10 +76,12 @@ sqlplus "/ as sysdba" @install.sql
 or all-in-one way
 
 ```
-cd noradle-oracle-server && sqlplus "sys/password@targetdb as sysdba" @install
+cd noradle-oracle-server && sqlplus "sys/password@targetdb as sysdba" @install.sql
 ```
 
-install from http works also, it's much simpler
+install from http works also, it's much simpler  
+(note: by now, sqlplus do not support execute script from https, as github is，  
+  the version at the address is usually old, not recommended)
 
 ```
 sqlplus "/ as sysdba" @http://static.noradle.com/repo/noradle-oracle-server/install.sql
