@@ -6,6 +6,15 @@ create or replace package body k_gw is
 	-- Cause: Attempt to resume the execution of a stored procedure using the existing state which has become invalid or inconsistent with the stored procedure because the procedure has been altered or dropped. 
 	-- Action: Try again; this error should have caused the existing state of all packages to be re-initialized. 
 
+	procedure error_not_bch is
+	begin
+		h.allow_get_post;
+		h.status_line(403);
+		h.content_type('text/plain');
+		h.header_close;
+		b.line('The requested program unit is "' || r.prog || '" , only _b/_c/_h named unit can be called from http');
+	end;
+
 	procedure error_not_exist is
 	begin
 		h.status_line(404);
@@ -86,6 +95,11 @@ create or replace package body k_gw is
 				rollback;
 				return;
 		end;
+	
+		if substrb(nvl(r.pack, r.proc), -2) not in ('_c', '_b', '_h') then
+			error_not_bch;
+			return;
+		end if;
 	
 		v_tried := false;
 		<<retry_prog>>
