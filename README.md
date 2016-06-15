@@ -55,7 +55,8 @@ how to install
 ## Install NORADLE engine schema objects
 
 use sqlplus to login into the target oracle database as sysdba,  
-(note: only sys can grant execute right for sys owned packages, just DBA role cannot)
+(note: only sys can grant execute right for sys owned packages, just DBA role cannot,
+  and only sys can start server process other than engine db user)
 then execute install.sql script file. Example like this:
 
 ```
