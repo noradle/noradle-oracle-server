@@ -186,24 +186,6 @@ prompt =======================
 prompt
 @@k_init.spc
 @@k_init.bdy
-prompt
-prompt Creating package HTTP_SERVER
-prompt ============================
-prompt
-@@http_server.spc
-@@http_server.bdy
-prompt
-prompt Creating package DATA_SERVER
-prompt ============================
-prompt
-@@data_server.spc
-@@data_server.bdy
-prompt
-prompt Creating package ANY_SERVER
-prompt ===========================
-prompt
-@@any_server.spc
-@@any_server.bdy
 
 
 prompt
