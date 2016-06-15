@@ -3,7 +3,9 @@
 contents
 ============
 
-1. sys.pw - 
+install.sql will install noradle engine(objects as below) to oracle database
+
+1. create engine schema and grant required privilege to it
 2. configuration tables and views
   - server_control_t
   - client_control_t
@@ -14,13 +16,14 @@ contents
   - kill
   - framework
   - k_gw
+  - k_servlet
   - bios
   - http_server
   - data_server
   - k_init
   - output
   - k_sql
-4. API packages
+4. API packages(base)
   - st
   - nt
   - k_type_tool
@@ -29,6 +32,10 @@ contents
   - r - request info
   - h,hdr,k_resq_head : set response headers
   - b,bdy,k_resq_body : print response body
+  - msg_pipe
+  - cache : http cache support
+  - k_debug : trace runtime info, mimic server env in IDE
+5. API pakcages(for print only)
   - rs : results set output
   - l,url : support concise url coding
   - sty,style : support dynamic css printing, embed or link
@@ -36,16 +43,11 @@ contents
   - m,multi : repeat template with substitute data repeatly
   - tr,tree : repeat template with substitute data repeatly, but print hierachical structure
   - tb,list : aid table print, for cols,thead...
-  - msg_pipe
-  - cache : http cache support
-  - k_debug : trace runtime info, mimic server env in IDE
-  
-some packages may be deprecated in future
-
-* kv
-* k_validator
-* k_auth
-* k_mapping
+6. some packages may be deprecated in future
+  - kv
+  - k_validator
+  - k_auth
+  - k_mapping
 
 how to install
 ================
