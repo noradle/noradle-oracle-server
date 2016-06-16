@@ -23,8 +23,6 @@ create or replace package body k_mapping is
 		if pv.cc.routing_proc is not null then
 			execute immediate 'call ' || r.getc('x$dbu', pv.cc.dbu_default) || '.' || pv.cc.routing_proc || '()';
 			return true;
-		elsif pv.cc.url_pattern is not null then
-			return true;
 		end if;
 	
 		t.split(v, substrb(r.pathname, 2), '/', false);
