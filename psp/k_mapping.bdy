@@ -20,11 +20,6 @@ create or replace package body k_mapping is
 		x$prog varchar2(61);
 		x$dbu  varchar2(30);
 	begin
-		if pv.cc.routing_proc is not null then
-			execute immediate 'call ' || r.getc('x$dbu', pv.cc.dbu_default) || '.' || pv.cc.routing_proc || '()';
-			return true;
-		end if;
-	
 		t.split(v, substrb(r.pathname, 2), '/', false);
 		x$pos := r.getn('x$pos');
 		if x$pos is null then
