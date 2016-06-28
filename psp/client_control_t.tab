@@ -5,9 +5,10 @@ create table CLIENT_CONTROL_T
   cip_filter      VARCHAR2(2000),
   passwd          VARCHAR2(30) not null,
   min_concurrency NUMBER(4) not null,
-  max_concurrency NUMBER(4) not null,
-  dbu_default     VARCHAR2(30) not null,
+  max_concurrency NUMBER(4),
+  dbu_default     VARCHAR2(30),
   dbu_filter      VARCHAR2(2000),
+  prog_default    VARCHAR2(30),
   allow_sql       VARCHAR2(1)
 )
 ;
@@ -18,11 +19,12 @@ comment on column CLIENT_CONTROL_T.cfg_filter
 comment on column CLIENT_CONTROL_T.cip_filter
   is 'regexp to check if client ip is allowed';
 comment on column CLIENT_CONTROL_T.dbu_default
-  is 'default value x$dbu';
+  is 'default value for x$dbu';
 comment on column CLIENT_CONTROL_T.dbu_filter
   is 'regexp to check which dbu can access to, null for same x$dbu';
+comment on column CLIENT_CONTROL_T.prog_default
+  is 'default value for x$prog';
 comment on column CLIENT_CONTROL_T.allow_sql
   is 'null for forbid, Y for allow';
 alter table CLIENT_CONTROL_T
   add constraint PK_CLIENT_CONTROL primary key (CID);
-
