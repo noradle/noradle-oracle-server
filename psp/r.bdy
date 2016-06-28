@@ -52,6 +52,18 @@ create or replace package body r is
 		v_type := substrb(nvl(v_pack, v_proc), -1);
 	end;
 
+	-- allow x$before to dynamic set x$prog
+	-- used by both system and app
+	procedure set_prog(x$prog varchar2 := null) is
+	begin
+		if x$prog is not null then
+			r.setc('x$prog', x$prog);
+		end if;
+		k_parser.parse_prog;
+		r.fix_map;
+		dbms_application_info.set_module(r.dbu || '.' || nvl(r.pack, r.proc), t.tf(r.pack is null, 'standalone', r.proc));
+	end;
+
 	procedure body2clob is
 		v_len  number(8);
 		v_dos  integer := 1;
