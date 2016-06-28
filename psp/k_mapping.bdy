@@ -43,6 +43,9 @@ create or replace package body k_mapping is
 	
 		-- this is for become user
 		-- check if cid can access dbu
+		if r.getc('x$dbu') = 'public' then
+			r.setc('x$dbu', lower(sys_context('userenv', 'CURRENT_USER')));
+		end if;
 		if not k_cfg.allow_cid_dbu then
 			h.status_line(500);
 			h.content_type('text/plan');

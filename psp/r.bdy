@@ -45,9 +45,6 @@ create or replace package body r is
 	procedure "_after_map" is
 	begin
 		get('x$dbu', gv_dbu);
-		if gv_dbu = 'public' then
-			gv_dbu := lower(sys_context('userenv', 'CURRENT_USER'));
-		end if;
 		get('x$prog', v_prog);
 		get('x$pack', v_pack);
 		get('x$proc', v_proc);
