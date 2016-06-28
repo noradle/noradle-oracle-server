@@ -15,6 +15,14 @@ create or replace package body k_gw is
 		b.line('The requested program unit is "' || r.prog || '" , only _b/_c/_h named unit can be called from http');
 	end;
 
+	procedure error_forbid_tv is
+	begin
+		h.allow_get_post;
+		h.status_line(403);
+		h.content_type('text/plan');
+		b.line('cid:' || r.cid || ' is not allowed to access table/view/sql directly!');
+	end;
+
 	procedure error_not_exist is
 	begin
 		h.status_line(404);
@@ -64,6 +72,7 @@ create or replace package body k_gw is
 		v_tried  boolean;
 		v_before varchar2(60) := r.getc('x$before', '');
 		v_after  varchar2(60) := r.getc('x$after', '');
+		v_last2  char(2);
 	begin
 		v_tried := false;
 		<<retry_filter>>
@@ -96,7 +105,16 @@ create or replace package body k_gw is
 				return;
 		end;
 	
-		if substrb(nvl(r.pack, r.proc), -2) not in ('_c', '_b', '_h') then
+		v_last2 := substrb(nvl(r.pack, r.proc), -2);
+		if v_last2 in ('_c', '_b', '_h') then
+			null;
+		elsif v_last2 in ('_t', '_v') then
+			if not k_cfg.allow_cid_sql then
+				error_forbid_tv;
+				return;
+			end if;
+			r.setc('x$prog', 'k_sql.get');
+		else
 			error_not_bch;
 			return;
 		end if;
