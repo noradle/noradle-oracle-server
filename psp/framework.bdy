@@ -259,11 +259,11 @@ create or replace package body framework is
 			-- map requested url to target servlet as x$dbu.x$prog form
 			-- or just print error page with request infomation
 			k_debug.time_header('before-exec');
-			if not k_mapping.route then
-				h.status_line(404);
-				k_debug.req_info;
-			elsif k_servlet.run then
-				do_quit('servlet exception');
+		
+			if k_mapping.route then
+				if k_servlet.run then
+					do_quit('servlet exception');
+				end if;
 			end if;
 		
 			output.finish;
