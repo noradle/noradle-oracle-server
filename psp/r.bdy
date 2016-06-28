@@ -42,7 +42,7 @@ create or replace package body r is
 			value := defval;
 	end;
 
-	procedure "_after_map" is
+	procedure fix_map is
 	begin
 		get('x$dbu', gv_dbu);
 		get('x$prog', v_prog);

@@ -6,7 +6,7 @@ create or replace package r is
 	na pv.vc_arr;
 	va pv.vc_arr;
 
-	procedure "_after_map";
+	procedure set_prog(x$prog varchar2 := null);
 
 	procedure getblob
 	(
