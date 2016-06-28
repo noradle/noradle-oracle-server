@@ -209,11 +209,13 @@ create or replace package body msg_pipe is
 				if n is null then
 					v_headover := true;
 					dbms_pipe.unpack_message(v_nchar);
-					continue;
+					goto continue;
 				end if;
 				dbms_pipe.unpack_message(v);
 				h.header(n, v);
 			end if;
+			<<continue>>
+			null;
 		end loop;
 	end;
 

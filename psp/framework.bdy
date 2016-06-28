@@ -229,7 +229,7 @@ create or replace package body framework is
 				if k_mgmt_frame.response then
 					do_quit('dispatcher send');
 				else
-					continue;
+					goto continue;
 				end if;
 			end if;
 			v_svr_req_cnt := v_svr_req_cnt + 1;
@@ -260,6 +260,7 @@ create or replace package body framework is
 			-- or just print error page with request infomation
 			k_debug.time_header('before-exec');
 		
+			k_debug.trace(st('protocol', pv.protocol, r.url), 'route');
 			if k_mapping.route then
 				if k_servlet.run then
 					do_quit('servlet exception');
@@ -283,6 +284,8 @@ create or replace package body framework is
 				goto make_connection;
 			end if;
 		
+			<<continue>>
+			null;
 		end loop;
 	
 	exception

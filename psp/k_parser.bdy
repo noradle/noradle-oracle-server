@@ -89,13 +89,15 @@ create or replace package body k_parser is
 			t.half(v_nvs(i), n, v, '=');
 			n := trim(n);
 			if n is null then
-				continue;
+				goto continue;
 			elsif not ra.params.exists(n) then
 				ra.params(n) := st(trim(v));
 			else
 				ra.params(n).extend(1);
 				ra.params(n)(ra.params(n).count) := v;
 			end if;
+			<<continue>>
+			null;
 		end loop;
 	end;
 
@@ -111,7 +113,7 @@ create or replace package body k_parser is
 		for i in 1 .. nvs.count loop
 			t.half(nvs(i), n, v, '=');
 			if n is null then
-				continue;
+				goto continue;
 			end if;
 			n := 'c$' || trim(n);
 			if not ra.params.exists(n) then
@@ -120,6 +122,8 @@ create or replace package body k_parser is
 				ra.params(n).extend(1);
 				ra.params(n)(ra.params(n).count) := trim(v);
 			end if;
+			<<continue>>
+			null;
 		end loop;
 	end;
 
