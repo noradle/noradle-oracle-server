@@ -1,16 +1,16 @@
 create or replace package body fcgi is
 
+	-- http://www.mit.edu/~yandros/doc/specs/fcgi-spec.html
+
 	procedure read_request is
 		v_bytes   pls_integer;
 		v_raw8    raw(8);
-		v_chr8    varchar2(8);
 		v_version raw(1);
 		v_type    pls_integer;
 		v_req_id  raw(2);
 		v_clen    pls_integer;
 		v_plen    pls_integer;
 		v_blen    pls_integer;
-		v_cbuf    varchar2(32767 byte);
 		v_rbuf    raw(32767);
 		v_params  varchar2(32767 byte);
 	
@@ -40,7 +40,7 @@ create or replace package body fcgi is
 			k_debug.trace(st('read_wrapper(slot,type,len)', v_req_id, v_type, v_clen), 'FCGI');
 		end;
 	
-		procedure read_params is
+		procedure read_params_str is
 			nlen pls_integer;
 			vlen pls_integer;
 			c    char(1);
@@ -113,17 +113,14 @@ create or replace package body fcgi is
 					-- FCGI_PARAMS
 					if v_blen > 0 then
 						-- read params (set or append)
-						v_bytes := utl_tcp.read_text(pv.c, v_cbuf, v_clen, false);
+						v_bytes := utl_tcp.read_raw(pv.c, v_rbuf, v_clen, false);
 						if v_plen > 0 then
-							v_bytes := utl_tcp.read_text(pv.c, v_chr8, v_plen, false);
+							v_bytes := utl_tcp.read_raw(pv.c, v_raw8, v_plen, false);
 						end if;
-						if v_params is null then
-							v_params := v_cbuf;
-						else
-							v_params := v_params || v_cbuf;
-						end if;
+						v_params := utl_raw.cast_to_varchar2(v_rbuf);
+						read_params_str;
 					else
-						read_params;
+						null;
 					end if;
 				when 5 then
 					-- FCGI_STDIN
@@ -138,7 +135,7 @@ create or replace package body fcgi is
 						exit;
 					end if;
 			end case;
-		end loop;	
+		end loop;
 		k_debug.trace(st('read request complete'), 'FCGI');
 	end;
 
