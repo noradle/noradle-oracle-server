@@ -80,6 +80,48 @@ create or replace package body fcgi is
 			end loop;
 		end;
 	
+		procedure read_params_tcp is
+			nlen pls_integer;
+			vlen pls_integer;
+			n    varchar2(256);
+			v    varchar2(8000);
+			rest pls_integer := v_clen;
+		begin
+			k_debug.trace(st('read params tcp'), 'FCGI');
+			loop
+				nlen := utl_raw.cast_to_binary_integer(utl_tcp.get_raw(pv.c, 1, false));
+				if nlen > 127 then
+					nlen := utl_raw.cast_to_binary_integer(utl_tcp.get_raw(pv.c, 3, false));
+					rest := rest - 3;
+				end if;
+				vlen := utl_raw.cast_to_binary_integer(utl_tcp.get_raw(pv.c, 1, false));
+				if vlen > 127 then
+					vlen := utl_raw.cast_to_binary_integer(utl_tcp.get_raw(pv.c, 3, false));
+					rest := rest - 3;
+				end if;
+				if nlen > 0 then
+					n := utl_raw.cast_to_varchar2(utl_tcp.get_raw(pv.c, nlen, false));
+				else
+					n := null;
+				end if;
+				if vlen > 0 then
+					v := utl_raw.cast_to_varchar2(utl_tcp.get_raw(pv.c, vlen, false));
+				else
+					v := null;
+				end if;
+				if n like 'HTTP_%' then
+					n := 'h$' || replace(lower(substrb(n, 6)), '_', '-');
+				end if;
+				if n is not null then
+					ra.params(n) := st(v);
+				end if;
+				rest := rest - 2 - nlen - vlen;
+				if rest = 0 then
+					exit;
+				end if;
+			end loop;
+		end;
+	
 		procedure init_request_body is
 			v_pos pls_integer;
 		begin
@@ -113,12 +155,16 @@ create or replace package body fcgi is
 					-- FCGI_PARAMS
 					if v_blen > 0 then
 						-- read params (set or append)
-						v_bytes := utl_tcp.read_raw(pv.c, v_rbuf, v_clen, false);
+						if false then
+							v_bytes  := utl_tcp.read_raw(pv.c, v_rbuf, v_clen, false);
+							v_params := utl_raw.cast_to_varchar2(v_rbuf);
+							read_params_str;
+						else
+							read_params_tcp;
+						end if;
 						if v_plen > 0 then
 							v_bytes := utl_tcp.read_raw(pv.c, v_raw8, v_plen, false);
 						end if;
-						v_params := utl_raw.cast_to_varchar2(v_rbuf);
-						read_params_str;
 					else
 						null;
 					end if;
