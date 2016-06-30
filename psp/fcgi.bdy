@@ -122,6 +122,13 @@ create or replace package body fcgi is
 			end loop;
 		end;
 	
+		procedure read_padding is
+		begin
+			if v_plen > 0 then
+				v_bytes := utl_tcp.read_raw(pv.c, v_raw8, v_plen, false);
+			end if;
+		end;
+	
 		procedure init_request_body is
 			v_pos pls_integer;
 		begin
@@ -162,9 +169,7 @@ create or replace package body fcgi is
 						else
 							read_params_tcp;
 						end if;
-						if v_plen > 0 then
-							v_bytes := utl_tcp.read_raw(pv.c, v_raw8, v_plen, false);
-						end if;
+						read_padding;
 					else
 						null;
 					end if;
@@ -177,6 +182,7 @@ create or replace package body fcgi is
 						end if;
 						v_bytes := utl_tcp.read_raw(pv.c, v_rbuf, v_blen, false);
 						dbms_lob.writeappend(rb.blob_entity, v_clen, v_rbuf);
+						read_padding;
 					else
 						exit;
 					end if;
