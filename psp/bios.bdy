@@ -115,6 +115,7 @@ create or replace package body bios is
 				-- read nv header
 				read_wrapper;
 				ncgi.read_nv;
+				pv.protocol := r.getc('b$protocol');
 				-- read body frames until met end frame
 				loop
 					read_wrapper;

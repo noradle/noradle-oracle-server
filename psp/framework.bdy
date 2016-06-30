@@ -233,7 +233,6 @@ create or replace package body framework is
 				end if;
 			end if;
 			v_svr_req_cnt := v_svr_req_cnt + 1;
-			pv.protocol   := r.getc('b$protocol', 'HTTP');
 			pv.hp_flag    := r.getb('b$hprof', false);
 		
 			if pv.hp_flag then

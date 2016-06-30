@@ -32,8 +32,6 @@ create or replace package body k_init is
 
 	procedure by_request is
 	begin
-		pv.protocol := r.getc('b$protocol', 'HTTP');
-		pv.hp_flag  := r.getb('b$hprof', false);
 		-- further parse from env
 		k_parser.parse_auto;
 		if pv.protocol = 'HTTP' then
