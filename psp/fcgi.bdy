@@ -148,6 +148,21 @@ create or replace package body fcgi is
 			dbms_lob.createtemporary(rb.blob_entity, cache => true, dur => dbms_lob.call);
 		end;
 	
+		procedure read_stdin is
+			v_rest pls_integer := v_clen;
+			bufsize constant pls_integer := 32000;
+		begin
+			while v_rest > bufsize loop
+				v_bytes := utl_tcp.read_raw(pv.c, v_rbuf, bufsize, false);
+				dbms_lob.writeappend(rb.blob_entity, bufsize, v_rbuf);
+				v_rest := v_rest - bufsize;
+			end loop;
+			if v_rest > 0 then
+				v_bytes := utl_tcp.read_raw(pv.c, v_rbuf, v_rest + v_plen, false);
+				dbms_lob.writeappend(rb.blob_entity, v_rest, v_rbuf);
+			end if;
+		end;
+	
 	begin
 		k_debug.trace(st('read request begin'), 'FCGI');
 		rb.length := null;
@@ -180,9 +195,7 @@ create or replace package body fcgi is
 						if rb.length is null then
 							init_request_body;
 						end if;
-						v_bytes := utl_tcp.read_raw(pv.c, v_rbuf, v_blen, false);
-						dbms_lob.writeappend(rb.blob_entity, v_clen, v_rbuf);
-						read_padding;
+						read_stdin;
 					else
 						exit;
 					end if;
